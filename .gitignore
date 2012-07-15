@@ -1,0 +1,11 @@
+*.a
+*.d
+*.elf
+*.hex
+*.o
+.*.sw?
+.DS_Store
+/.gdb_history
+/map.json
+/pulsedtr
+Session.vim
