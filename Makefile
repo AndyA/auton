@@ -7,7 +7,9 @@ VARIANT = standard
 
 include ~/.arduino.mk
 
-VPATH = $(ARDUINO_LIB)
+SERVOLIB=$(ARDUINO_BASE)/libraries/Servo
+
+VPATH = $(ARDUINO_LIB):$(SERVOLIB)
 
 SRC =   WInterrupts.c \
 	wiring.c \
@@ -18,9 +20,10 @@ SRC =   WInterrupts.c \
 
 CXXSRC = HardwareSerial.cpp \
 	Stream.cpp \
-	Servo.cpp \
 	Print.cpp \
+	Servo.cpp \
 	WString.cpp \
+	WMath.cpp \
 	new.cpp
 
 FORMAT = ihex
@@ -40,8 +43,8 @@ CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 
 # Place -I options here
-CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC)
-CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC)
+CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) -I$(SERVOLIB)
+CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) -I$(SERVOLIB)
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
