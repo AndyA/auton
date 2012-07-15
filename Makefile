@@ -14,11 +14,11 @@ SRC =   WInterrupts.c \
 	wiring_analog.c \
 	wiring_digital.c \
 	wiring_pulse.c \
-	wiring_shift.c \
-	fft.c mavg.c
+	wiring_shift.c
 
 CXXSRC = HardwareSerial.cpp \
 	Stream.cpp \
+	Servo.cpp \
 	Print.cpp \
 	WString.cpp \
 	new.cpp
