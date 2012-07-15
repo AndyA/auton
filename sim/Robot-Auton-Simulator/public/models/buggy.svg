@@ -15,7 +15,7 @@
     xmlns:svg="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs id="defs4">
-    <linearGradient id="linearGradient3755">
+    <linearGradient id="mg_tyre">
       <stop
           id="stop3757"
           offset="0"
@@ -38,46 +38,46 @@
       />
     </linearGradient>
     <linearGradient
-        gradientTransform="matrix(0,2.7860713,-0.79484317,0,333.49806,-644.31857)"
+        gradientTransform="matrix(0,2.7860713,-0.79484317,0,333.49806,-167.95639)"
         gradientUnits="userSpaceOnUse"
-        id="linearGradient4098"
+        id="mg_frontleft"
         inkscape:collect="always"
         x1="290.22681"
         x2="307.08463"
-        xlink:href="#linearGradient3755"
+        xlink:href="#mg_tyre"
         y1="166.86807"
         y2="166.86807"
     />
     <linearGradient
         gradientTransform="matrix(0,2.7860713,-0.79484317,0,333.49806,-23.112511)"
         gradientUnits="userSpaceOnUse"
-        id="linearGradient4100"
+        id="mg_rearleft"
         inkscape:collect="always"
         x1="290.22681"
         x2="307.08463"
-        xlink:href="#linearGradient3755"
+        xlink:href="#mg_tyre"
         y1="166.86807"
         y2="166.86807"
     />
     <linearGradient
         gradientTransform="matrix(0,2.7860713,-0.79484317,0,453.99808,-23.112507)"
         gradientUnits="userSpaceOnUse"
-        id="linearGradient4102"
+        id="mg_rearright"
         inkscape:collect="always"
         x1="290.22681"
         x2="307.08463"
-        xlink:href="#linearGradient3755"
+        xlink:href="#mg_tyre"
         y1="166.86807"
         y2="166.86807"
     />
     <linearGradient
         gradientTransform="matrix(0,2.7860713,-0.79484317,0,453.99808,-167.95639)"
         gradientUnits="userSpaceOnUse"
-        id="linearGradient4104"
+        id="mg_frontright"
         inkscape:collect="always"
         x1="290.22681"
         x2="307.08463"
-        xlink:href="#linearGradient3755"
+        xlink:href="#mg_tyre"
         y1="166.86807"
         y2="166.86807"
     />
@@ -86,7 +86,7 @@
       bordercolor="#666666"
       borderopacity="1.0"
       id="base"
-      inkscape:current-layer="layer1"
+      inkscape:current-layer="m_model"
       inkscape:cx="465.46418"
       inkscape:cy="317.84377"
       inkscape:document-units="px"
@@ -111,7 +111,7 @@
     </rdf:RDF>
   </metadata>
   <g
-      id="layer1"
+      id="m_model"
       inkscape:groupmode="layer"
       inkscape:label="model"
       transform="translate(0,-476.36218)">
@@ -160,7 +160,7 @@
           id="m_rearleft"
           inkscape:connector-curvature="0"
           inkscape:label="#path4021"
-          style="fill:url(#linearGradient4100);fill-opacity:1;fill-rule:evenodd;stroke:none"
+          style="fill:url(#mg_rearleft);fill-opacity:1;fill-rule:evenodd;stroke:none"
       />
       <path
           class="m_wheel m_rear m_right"
@@ -168,7 +168,7 @@
           id="m_rearright"
           inkscape:connector-curvature="0"
           inkscape:label="#path4025"
-          style="fill:url(#linearGradient4102);fill-opacity:1;fill-rule:evenodd;stroke:none"
+          style="fill:url(#mg_rearright);fill-opacity:1;fill-rule:evenodd;stroke:none"
       />
       <path
           class="m_wheel m_front m_left"
@@ -176,7 +176,7 @@
           id="m_frontleft"
           inkscape:connector-curvature="0"
           inkscape:label="#rect2985"
-          style="fill:url(#linearGradient4098);fill-opacity:1;fill-rule:evenodd;stroke:none"
+          style="fill:url(#mg_frontleft);fill-opacity:1;fill-rule:evenodd;stroke:none"
       />
       <path
           class="m_wheel m_front m_right"
@@ -184,7 +184,7 @@
           id="m_frontright"
           inkscape:connector-curvature="0"
           inkscape:label="#path4067"
-          style="fill:url(#linearGradient4104);fill-opacity:1;fill-rule:evenodd;stroke:none"
+          style="fill:url(#mg_frontright);fill-opacity:1;fill-rule:evenodd;stroke:none"
       />
     </g>
   </g>
