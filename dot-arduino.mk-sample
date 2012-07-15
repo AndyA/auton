@@ -1,0 +1,7 @@
+ARDUINO_BASE = /home/andy/Works/Arduino/tools/Arduino
+ARDUINO_INC = $(ARDUINO_BASE)/hardware/arduino/variants/$(VARIANT)
+ARDUINO_LIB = $(ARDUINO_BASE)/hardware/arduino/cores/arduino
+AVRDUDE = /usr/bin/avrdude
+AVRDUDE_CONF = /etc/avrdude.conf
+AVR_TOOLS_PATH = /usr/bin
+PORT = /dev/ttyACM0
