@@ -13,11 +13,14 @@ SVGTool.prototype = {
   BC: 0x21,
   BR: 0x22,
   anchor: function(bb, cent) {
+    if (cent == null) cent = this.CC;
     return {
       x: bb.x + bb.width * (cent & 0x0f) / 2,
       y: bb.y + bb.height * ((cent >> 4) & 0x0f) / 2
     };
   },
+  // Localise the coordinate system of an element so that it may be transformed relative to
+  // its centre.
   localise: function(elt, cent) {
     var ap = this.anchor(elt.getBBox(), cent);
     var $elt = $(elt);
