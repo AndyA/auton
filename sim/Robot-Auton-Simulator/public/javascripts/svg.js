@@ -9,9 +9,9 @@ SVGTool.prototype = {
   CL: 0x10,
   CC: 0x11,
   CR: 0x12,
-  CL: 0x20,
-  CC: 0x21,
-  CR: 0x22,
+  BL: 0x20,
+  BC: 0x21,
+  BR: 0x22,
   anchor: function(bb, cent) {
     return {
       x: bb.x + bb.width * (cent & 0x0f) / 2,
