@@ -36,6 +36,16 @@ static uint32_t speed = 500000;
 static uint16_t delay;
 
 static void
+hexdump( const void *buf, size_t size ) {
+  const unsigned char *bp = buf;
+  unsigned i;
+  for ( i = 0; i < size; i++ ) {
+    printf( "%02x ", bp[i] );
+  }
+  printf( "\n" );
+}
+
+static void
 transfer( int fd ) {
   int ret;
   uint8_t tx[] = {
@@ -58,14 +68,10 @@ transfer( int fd ) {
   if ( ret < 1 )
     pabort( "can't send spi message" );
 
-  /*
-     for (ret = 0; ret < ARRAY_SIZE(tx); ret++) {
-     if (!(ret % 6))
-     puts("");
-     printf("%.2X ", rx[ret]);
-     }
-     puts("");
-   */
+  printf( "Tx: " );
+  hexdump( tx, ARRAY_SIZE( tx ) );
+  printf( "Rx: " );
+  hexdump( rx, ARRAY_SIZE( rx ) );
 }
 
 static void

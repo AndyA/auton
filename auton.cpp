@@ -23,6 +23,7 @@ ISR( SPI_STC_vect ) {
   byte c = SPDR;
   if ( pos < sizeof buf ) {
     buf[pos++] = c;
+    SPDR = ~c;
     if ( c == '\n' )
       process_it = true;
   }
