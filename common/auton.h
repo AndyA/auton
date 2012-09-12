@@ -10,6 +10,8 @@
 /* I(nput) and O(utput) are from the PoV of the Arduino */
 
 enum {
+  NB_I_DRIVE_LEFT,
+  NB_I_DRIVE_RIGHT,
   NB_I_CAM_PAN,
   NB_I_CAM_TILT,
   NB_I_SIZE
