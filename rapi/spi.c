@@ -1,9 +1,10 @@
+#include <fcntl.h>
+#include <getopt.h>
+#include <stdarg.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
-#include <fcntl.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
@@ -15,9 +16,13 @@ static unsigned char nb[NB_SIZE];
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 static void
-pabort( const char *s ) {
-  perror( s );
-  abort(  );
+die( const char *fmt, ... ) {
+  va_list ap;
+  va_start( ap, fmt );
+  vfprintf( stderr, fmt, ap );
+  fprintf( stderr, "\n" );
+  va_end( ap );
+  exit( 1 );
 }
 
 static const char *device = "/dev/spidev0.0";
@@ -57,7 +62,7 @@ transfer( int fd ) {
 
   ret = ioctl( fd, SPI_IOC_MESSAGE( 1 ), &tr );
   if ( ret < 1 )
-    pabort( "can't send spi message" );
+    die( "can't send spi message" );
 
   printf( "Tx: " );
   hexdump( tx, ARRAY_SIZE( tx ) );
@@ -72,40 +77,40 @@ main( int argc, char *argv[] ) {
 
   fd = open( device, O_RDWR );
   if ( fd < 0 )
-    pabort( "can't open device" );
+    die( "can't open device" );
 
   /*
    * spi mode
    */
   ret = ioctl( fd, SPI_IOC_WR_MODE, &mode );
   if ( ret == -1 )
-    pabort( "can't set spi mode" );
+    die( "can't set spi mode" );
 
   ret = ioctl( fd, SPI_IOC_RD_MODE, &mode );
   if ( ret == -1 )
-    pabort( "can't get spi mode" );
+    die( "can't get spi mode" );
 
   /*
    * bits per word
    */
   ret = ioctl( fd, SPI_IOC_WR_BITS_PER_WORD, &bits );
   if ( ret == -1 )
-    pabort( "can't set bits per word" );
+    die( "can't set bits per word" );
 
   ret = ioctl( fd, SPI_IOC_RD_BITS_PER_WORD, &bits );
   if ( ret == -1 )
-    pabort( "can't get bits per word" );
+    die( "can't get bits per word" );
 
   /*
    * max speed hz
    */
   ret = ioctl( fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed );
   if ( ret == -1 )
-    pabort( "can't set max speed hz" );
+    die( "can't set max speed hz" );
 
   ret = ioctl( fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed );
   if ( ret == -1 )
-    pabort( "can't get max speed hz" );
+    die( "can't get max speed hz" );
 
   transfer( fd );
 
