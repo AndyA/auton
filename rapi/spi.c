@@ -11,6 +11,7 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "auton.h"
 
@@ -28,9 +29,9 @@ pthread_mutex_t nb_o_mtx = PTHREAD_MUTEX_INITIALIZER;
 static const char *device = "/dev/spidev0.0";
 static uint8_t mode;
 static uint8_t bits = 8;
-/*static uint32_t speed = 500000;*/
-static uint32_t speed = 250000;
+static uint32_t speed = 125000;
 static uint16_t delay;
+static int fd;
 
 static void
 die( const char *fmt, ... ) {
@@ -68,7 +69,7 @@ nb_init( void ) {
 }
 
 static void
-nb_transfer( int fd ) {
+nb_transfer(  ) {
   int ret;
   uint8_t tx[NB_SIG_LEN + NB_SIZE + NB_SIG_LEN];
   uint8_t rx[NB_SIG_LEN + NB_SIZE + NB_SIG_LEN];
@@ -98,7 +99,8 @@ nb_transfer( int fd ) {
   if ( memcmp( rx + 1, nb_sig_start, NB_SIG_LEN ) ||
        memcmp( rx + 1 + NB_SIG_LEN + NB_SIZE, nb_sig_end,
                NB_SIG_LEN - 1 ) ) {
-    fprintf( stderr, "Warning: communication error" );
+    printf( "Warning: communication error\n" );
+    hexdump( rx, sizeof( rx ) );
     return;
   }
 
@@ -131,10 +133,25 @@ nb_poke( unsigned addr, uint8_t v ) {
   pthread_mutex_unlock( &nb_i_mtx );
 }
 
+static void *
+nb_worker( void *arg ) {
+  unsigned phase = 0;
+  while ( 1 ) {
+    nb_transfer(  );
+/*    usleep( 25000 );*/
+    usleep( 1000000 );
+    if ( ++phase % 25000 == 0 ) {
+      nb_poke( NB_I_CAM_TILT, nb_i[NB_I_CAM_TILT] + 1 );
+    }
+  }
+  return NULL;
+}
+
 int
 main( int argc, char *argv[] ) {
   int ret = 0;
-  int fd;
+  pthread_t worker;
+  void *rv;
 
   fd = open( device, O_RDWR );
   if ( fd < 0 )
@@ -175,9 +192,12 @@ main( int argc, char *argv[] ) {
 
   nb_init(  );
 
-  nb_transfer( fd );
+  if ( pthread_create( &worker, NULL, nb_worker, NULL ) < 0 ) {
+    die( "Thread creation failed: %s", strerror( errno ) );
+  }
+  pthread_join( worker, &rv );
 
   close( fd );
-
+  pthread_exit( NULL );
   return ret;
 }

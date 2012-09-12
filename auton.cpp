@@ -5,9 +5,12 @@
 
 #include "auton.h"
 
+typedef void ( *nb_cb_func ) ( unsigned addr, byte ov, byte nv );
+
 static byte nb_i[NB_SIZE];
 static byte nb_o[NB_SIZE];
 static byte nb_i_tmp[NB_SIZE];
+static nb_cb_func nb_cb[NB_SIZE];
 static unsigned nb_pos;
 static volatile byte nb_state;
 
@@ -29,18 +32,11 @@ nb_init(  ) {
   nb_pos = 0;
 }
 
-void
-setup( void ) {
-  Serial.begin( 9600 );
-
-  nb_init(  );
-
-  pos = 0;
-  process_it = false;
-
-  pinMode( MISO, OUTPUT );
-
-  SPCR |= _BV( SPE ) | _BV( SPIE );
+static void
+nb_register( nb_cb_func cb, unsigned lo, unsigned hi ) {
+  unsigned addr;
+  for ( addr = lo; addr < hi; addr++ )
+    nb_cb[addr] = cb;
 }
 
 ISR( SPI_STC_vect ) {
@@ -81,11 +77,47 @@ ISR( SPI_STC_vect ) {
 
 static void
 nb_poll(  ) {
+  unsigned addr;
+
   if ( nb_state != NB_DONE )
     return;
-  memcpy( nb_i, nb_i_tmp, NB_SIZE );
-  nb_gostate( NB_PRE );
+
   Serial.println( "Got message" );
+
+  /* trigger callbacks, update primary input array */
+  for ( addr = 0; addr < NB_SIZE; addr++ ) {
+    if ( nb_i_tmp[addr] != nb_i[addr] ) {
+      if ( nb_cb[addr] )
+        nb_cb[addr] ( addr, nb_i[addr], nb_i_tmp[addr] );
+      nb_i[addr] = nb_i_tmp[addr];
+    }
+  }
+
+  nb_gostate( NB_PRE );
+}
+
+static void
+nb_changed( unsigned addr, byte ov, byte nv ) {
+  Serial.print( addr );
+  Serial.print( " " );
+  Serial.print( ov );
+  Serial.print( " " );
+  Serial.print( nv );
+}
+
+void
+setup( void ) {
+  Serial.begin( 9600 );
+
+  nb_init(  );
+  nb_register( nb_changed, 0, NB_SIZE );
+
+  pos = 0;
+  process_it = false;
+
+  pinMode( MISO, OUTPUT );
+
+  SPCR |= _BV( SPE ) | _BV( SPIE );
 }
 
 void
