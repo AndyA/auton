@@ -1,25 +1,41 @@
 #include "Arduino.h"
+#include <SPI.h>
 #include <Servo.h>
 #include <avr/pgmspace.h>
 
-Servo myservo;
-
-int pos = 0;
+char buf[100];
+volatile byte pos;
+volatile boolean process_it;
 
 void
-setup(  ) {
-  myservo.attach( 5 );
+setup( void ) {
+  Serial.begin( 9600 );
+
+  pos = 0;
+  process_it = false;
+
+  pinMode( MISO, OUTPUT );
+  SPCR |= _BV( SPE );
+  SPI.attachInterrupt(  );
+
+}
+
+ISR( SPI_STC_vect ) {
+  byte c = SPDR;
+  if ( pos < sizeof buf ) {
+    buf[pos++] = c;
+    if ( c == '\n' )
+      process_it = true;
+  }
 }
 
 void
-loop(  ) {
-  for ( pos = 0; pos < 180; pos += 1 ) {
-    myservo.write( pos );
-    delay( 15 );
-  }
-  for ( pos = 180; pos >= 1; pos -= 1 ) {
-    myservo.write( pos );
-    delay( 15 );
+loop( void ) {
+  if ( process_it ) {
+    buf[pos] = 0;
+    Serial.println( buf );
+    pos = 0;
+    process_it = false;
   }
 }
 
