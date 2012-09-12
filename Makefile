@@ -13,7 +13,6 @@ SPACE := $(EMPTY) $(EMPTY)
 ALIBS=$(wildcard $(ARDUINO_BASE)/libraries/*)
 APATH=$(subst $(SPACE),:,$(ALIBS))
 AINC=$(addprefix -I,$(ALIBS))
-SUBDIRS = rapi
 
 VPATH = $(ARDUINO_LIB):$(APATH)
 
@@ -101,13 +100,7 @@ ALL_CXXFLAGS = -mmcu=$(MCU) -I. $(CXXFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Default target.
-all: subdirs build sizeafter
-
-subdirs:
-	for dir in $(SUBDIRS); do $(MAKE) -C $$dir; done
-
-subdirs-clean:
-	for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
+all: build sizeafter
 
 build: elf hex
 
@@ -210,7 +203,7 @@ include $(CXXSRC:.cpp=.d)
 include $(TARGET).d
 
 # Target: clean project.
-clean: subdirs-clean
+clean:
 	$(REMOVE) $(TARGET).hex $(TARGET).eep $(TARGET).cof $(TARGET).elf \
 	$(TARGET).map $(TARGET).sym $(TARGET).lss $(TARGET).o $(TARGET).d core.a \
 	$(OBJ) $(LST) $(OBJ:.o=.s) $(OBJ:.o=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d) \
