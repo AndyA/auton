@@ -13,6 +13,7 @@ SPACE := $(EMPTY) $(EMPTY)
 ALIBS=$(wildcard $(ARDUINO_BASE)/libraries/*)
 APATH=$(subst $(SPACE),:,$(ALIBS))
 AINC=$(addprefix -I,$(ALIBS))
+SUBDIRS = rapi
 
 VPATH = $(ARDUINO_LIB):$(APATH)
 
@@ -49,8 +50,8 @@ CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 
 # Place -I options here
-CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC)
-CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC)
+CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Icommon
+CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Icommon
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -99,9 +100,14 @@ ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS)
 ALL_CXXFLAGS = -mmcu=$(MCU) -I. $(CXXFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
-
 # Default target.
-all: build sizeafter
+all: subdirs build sizeafter
+
+subdirs:
+	for dir in $(SUBDIRS); do $(MAKE) -C $$dir; done
+
+subdirs-clean:
+	for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
 
 build: elf hex
 
@@ -204,7 +210,7 @@ include $(CXXSRC:.cpp=.d)
 include $(TARGET).d
 
 # Target: clean project.
-clean:
+clean: subdirs-clean
 	$(REMOVE) $(TARGET).hex $(TARGET).eep $(TARGET).cof $(TARGET).elf \
 	$(TARGET).map $(TARGET).sym $(TARGET).lss $(TARGET).o $(TARGET).d core.a \
 	$(OBJ) $(LST) $(OBJ:.o=.s) $(OBJ:.o=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d) \

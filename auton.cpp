@@ -3,6 +3,10 @@
 #include <Servo.h>
 #include <avr/pgmspace.h>
 
+#include "auton.h"
+
+static byte nb[NB_SIZE];
+
 char buf[100];
 volatile byte pos;
 volatile boolean process_it;
@@ -15,8 +19,8 @@ setup( void ) {
   process_it = false;
 
   pinMode( MISO, OUTPUT );
-  SPCR |= _BV( SPE );
-  SPI.attachInterrupt(  );
+
+  SPCR |= _BV( SPE ) | _BV( SPIE );
 }
 
 ISR( SPI_STC_vect ) {

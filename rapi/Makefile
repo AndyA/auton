@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-CFLAGS=-Wall -g3
+CFLAGS=-Wall -g3 -I../common
 LDFLAGS=-lc -lpthread
 
 BINS=spi
