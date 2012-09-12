@@ -10,8 +10,6 @@ include ~/.arduino.mk
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-SERVOLIB=$(ARDUINO_BASE)/libraries/Servo
-SPILIB=$(ARDUINO_BASE)/libraries/SPI
 ALIBS=$(wildcard $(ARDUINO_BASE)/libraries/*)
 APATH=$(subst $(SPACE),:,$(ALIBS))
 AINC=$(addprefix -I,$(ALIBS))
