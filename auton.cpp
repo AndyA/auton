@@ -17,7 +17,6 @@ setup( void ) {
   pinMode( MISO, OUTPUT );
   SPCR |= _BV( SPE );
   SPI.attachInterrupt(  );
-
 }
 
 ISR( SPI_STC_vect ) {
