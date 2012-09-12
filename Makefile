@@ -7,9 +7,16 @@ VARIANT = standard
 
 include ~/.arduino.mk
 
-SERVOLIB=$(ARDUINO_BASE)/libraries/Servo
+EMPTY :=
+SPACE := $(EMPTY) $(EMPTY)
 
-VPATH = $(ARDUINO_LIB):$(SERVOLIB)
+SERVOLIB=$(ARDUINO_BASE)/libraries/Servo
+SPILIB=$(ARDUINO_BASE)/libraries/SPI
+ALIBS=$(wildcard $(ARDUINO_BASE)/libraries/*)
+APATH=$(subst $(SPACE),:,$(ALIBS))
+AINC=$(addprefix -I,$(ALIBS))
+
+VPATH = $(ARDUINO_LIB):$(APATH)
 
 SRC =   WInterrupts.c \
 	wiring.c \
@@ -22,6 +29,7 @@ CXXSRC = HardwareSerial.cpp \
 	Stream.cpp \
 	Print.cpp \
 	Servo.cpp \
+	SPI.cpp \
 	WString.cpp \
 	WMath.cpp \
 	new.cpp
@@ -43,8 +51,8 @@ CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 
 # Place -I options here
-CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) -I$(SERVOLIB)
-CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) -I$(SERVOLIB)
+CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC)
+CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC)
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
