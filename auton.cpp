@@ -47,11 +47,11 @@ ISR( SPI_STC_vect ) {
   byte c = SPDR;
   switch ( nb_state ) {
   case NB_PRE:
-    if ( nb_sig_start[nb_pos] != ( char ) c ) {
+    if ( ( byte ) nb_sig_start[nb_pos] != c ) {
       nb_gostate( NB_PRE );
       break;
     }
-    SPDR = ~nb_sig_start[nb_pos];
+    SPDR = ~( byte ) nb_sig_start[nb_pos];
     if ( ++nb_pos == NB_SIG_LEN ) {
       nb_gostate( NB_MSG );
     }
@@ -65,10 +65,10 @@ ISR( SPI_STC_vect ) {
     }
     break;
   case NB_POST:
-    if ( nb_sig_end[nb_pos] != ( char ) c ) {
+    if ( ( byte ) nb_sig_end[nb_pos] != c ) {
       nb_gostate( NB_PRE );
     }
-    SPDR = ~nb_sig_end[nb_pos];
+    SPDR = ~( byte ) nb_sig_end[nb_pos];
     if ( ++nb_pos == NB_SIG_LEN ) {
       nb_gostate( NB_DONE );
     }
@@ -85,6 +85,7 @@ nb_poll(  ) {
     return;
   memcpy( nb_i, nb_i_tmp, NB_SIZE );
   nb_gostate( NB_PRE );
+  Serial.println( "Got message" );
 }
 
 void
