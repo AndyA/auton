@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include <SPI.h>
 #include <Servo.h>
 #include <avr/pgmspace.h>
 
