@@ -82,8 +82,6 @@ nb_poll(  ) {
   if ( nb_state != NB_DONE )
     return;
 
-  Serial.println( "Got message" );
-
   /* trigger callbacks, update primary input array */
   for ( addr = 0; addr < NB_SIZE; addr++ ) {
     if ( nb_i_tmp[addr] != nb_i[addr] ) {
@@ -102,7 +100,7 @@ nb_changed( unsigned addr, byte ov, byte nv ) {
   Serial.print( " " );
   Serial.print( ov );
   Serial.print( " " );
-  Serial.print( nv );
+  Serial.println( nv );
 }
 
 void

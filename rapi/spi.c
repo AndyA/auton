@@ -138,11 +138,8 @@ nb_worker( void *arg ) {
   unsigned phase = 0;
   while ( 1 ) {
     nb_transfer(  );
-/*    usleep( 25000 );*/
-    usleep( 1000000 );
-    if ( ++phase % 25000 == 0 ) {
-      nb_poke( NB_I_CAM_TILT, nb_i[NB_I_CAM_TILT] + 1 );
-    }
+    usleep( 25000 );
+    nb_poke( NB_I_CAM_TILT, phase++ / 20 );
   }
   return NULL;
 }
