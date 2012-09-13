@@ -139,7 +139,8 @@ nb_worker( void *arg ) {
   while ( 1 ) {
     nb_transfer(  );
     usleep( 25000 );
-    nb_poke( NB_I_CAM_TILT, phase++ / 20 );
+    nb_poke( NB_I_CAM_TILT, phase++ / 5 );
+    nb_poke( NB_I_CAM_PAN, phase++ / 7 );
   }
   return NULL;
 }
