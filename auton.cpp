@@ -41,7 +41,12 @@ nb_init(  ) {
 static void
 nb_register( nb_cb_func cb, unsigned lo, unsigned hi ) {
   unsigned addr;
-  for ( addr = lo; addr < hi; addr++ )
+  if ( hi < lo ) {
+    unsigned t = lo;
+    lo = hi;
+    hi = t;
+  }
+  for ( addr = lo; addr <= hi; addr++ )
     nb_cb[addr] = cb;
 }
 
@@ -110,9 +115,14 @@ nb_changed( unsigned addr, byte ov, byte nv ) {
 }
 
 static void
-pwm_set( uint8_t num, uint8_t v ) {
-  pwm.setPWM( num, 0,
+pwm_set( uint8_t addr, uint8_t v ) {
+  pwm.setPWM( addr, 0,
               ( uint16_t ) v * ( SERVOMAX - SERVOMIN ) / 255 + SERVOMIN );
+}
+
+static void
+pwm_changed( unsigned addr, byte ov, byte nv ) {
+  pwm_set( addr - NB_I_CAM_PAN, nv );
 }
 
 void
@@ -124,11 +134,12 @@ setup( void ) {
 
   pwm.setPWMFreq( 60 );
   for ( i = 0; i < 16; i++ ) {
-    pwm_set( i, i * i );
+    pwm_set( i, i + i * 16 );
   }
 
   nb_init(  );
-  nb_register( nb_changed, 0, NB_SIZE );
+  nb_register( nb_changed, 0, NB_SIZE - 1 );
+  nb_register( pwm_changed, NB_I_CAM_TILT, NB_I_CAM_PAN );
 
   pos = 0;
   process_it = false;
