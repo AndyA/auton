@@ -2,7 +2,14 @@
 #include <Servo.h>
 #include <avr/pgmspace.h>
 
+#include "PWM.h"
+
 #include "auton.h"
+
+#define SERVOMIN  150
+#define SERVOMAX  600
+
+PWM pwm = PWM(  );
 
 typedef void ( *nb_cb_func ) ( unsigned addr, byte ov, byte nv );
 
@@ -102,9 +109,21 @@ nb_changed( unsigned addr, byte ov, byte nv ) {
   Serial.println( nv );
 }
 
+static void
+pwm_set( uint8_t num, uint8_t v ) {
+  pwm.setPWM( num, 0, v * ( SERVOMAX - SERVOMIN ) / 255 + SERVOMIN );
+}
+
 void
 setup( void ) {
+  int i;
   Serial.begin( 9600 );
+
+  pwm.begin(  );
+  pwm.setPWMFreq( 60 );
+  for ( i = 0; i < 16; i++ ) {
+    pwm_set( i, 128 );
+  }
 
   nb_init(  );
   nb_register( nb_changed, 0, NB_SIZE );

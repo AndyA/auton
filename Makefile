@@ -18,6 +18,7 @@ VPATH = $(ARDUINO_LIB):$(APATH)
 
 SRC =   WInterrupts.c \
 	wiring.c \
+	twi.c \
 	wiring_analog.c \
 	wiring_digital.c \
 	wiring_pulse.c \
@@ -27,10 +28,11 @@ CXXSRC = HardwareSerial.cpp \
 	Stream.cpp \
 	Print.cpp \
 	Servo.cpp \
-	SPI.cpp \
 	WString.cpp \
 	WMath.cpp \
-	new.cpp
+	Wire.cpp \
+	new.cpp \
+	PWM.cpp
 
 FORMAT = ihex
 
