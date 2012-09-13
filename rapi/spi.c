@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <fcntl.h>
+#include <math.h>
 #include <getopt.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -133,14 +134,21 @@ nb_poke( unsigned addr, uint8_t v ) {
   pthread_mutex_unlock( &nb_i_mtx );
 }
 
+static uint8_t
+sinpos( unsigned phase, double mult, double scale ) {
+  return sin( phase / mult ) * scale + 128;
+
+}
+
 static void *
 nb_worker( void *arg ) {
   unsigned phase = 0;
   while ( 1 ) {
     nb_transfer(  );
     usleep( 25000 );
-    nb_poke( NB_I_CAM_TILT, phase++ / 5 );
-    nb_poke( NB_I_CAM_PAN, phase++ / 7 );
+    nb_poke( NB_I_CAM_TILT, sinpos( phase, 11, 40 ) );
+    nb_poke( NB_I_CAM_PAN, sinpos( phase, 13, 128 ) );
+    phase++;
   }
   return NULL;
 }

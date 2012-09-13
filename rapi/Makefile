@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CFLAGS=-Wall -g3 -I../common
-LDFLAGS=-lc -lpthread
+LDFLAGS=-lc -lm -lpthread
 
 BINS=spi
 OBJS=spi.o
