@@ -11,14 +11,14 @@
 
 PWM pwm = PWM(  );
 
-typedef void ( *nb_cb_func ) ( unsigned addr, byte ov, byte nv );
+typedef void ( *nb_cb_func ) ( uint16_t addr, uint8_t ov, uint8_t nv );
 
-static byte nb_i[NB_SIZE];
-static byte nb_o[NB_SIZE];
-static byte nb_i_tmp[NB_SIZE];
+static uint8_t nb_i[NB_SIZE];
+static uint8_t nb_o[NB_SIZE];
+static uint8_t nb_i_tmp[NB_SIZE];
 static nb_cb_func nb_cb[NB_SIZE];
-static unsigned nb_pos;
-static volatile byte nb_state;
+static uint16_t nb_pos;
+static volatile uint8_t nb_state;
 
 static const char nb_sig_start[] = NB_SIG_START;
 static const char nb_sig_end[] = NB_SIG_END;
@@ -28,10 +28,6 @@ enum { NB_PRE, NB_MSG, NB_POST, NB_DONE };
 #define nb_gostate(st) \
   do { nb_pos = 0; nb_state = (st); } while (0)
 
-char buf[100];
-volatile byte pos;
-volatile boolean process_it;
-
 static void
 nb_init(  ) {
   nb_state = NB_PRE;
@@ -39,10 +35,10 @@ nb_init(  ) {
 }
 
 static void
-nb_register( nb_cb_func cb, unsigned lo, unsigned hi ) {
-  unsigned addr;
+nb_register( nb_cb_func cb, uint16_t lo, uint16_t hi ) {
+  uint16_t addr;
   if ( hi < lo ) {
-    unsigned t = lo;
+    uint16_t t = lo;
     lo = hi;
     hi = t;
   }
@@ -51,14 +47,14 @@ nb_register( nb_cb_func cb, unsigned lo, unsigned hi ) {
 }
 
 ISR( SPI_STC_vect ) {
-  byte c = SPDR;
+  uint8_t c = SPDR;
   switch ( nb_state ) {
   case NB_PRE:
-    if ( ( byte ) nb_sig_start[nb_pos] != c ) {
+    if ( ( uint8_t ) nb_sig_start[nb_pos] != c ) {
       nb_gostate( NB_PRE );
       break;
     }
-    SPDR = ~( byte ) nb_sig_start[nb_pos];
+    SPDR = ~( uint8_t ) nb_sig_start[nb_pos];
     if ( ++nb_pos == NB_SIG_LEN ) {
       nb_gostate( NB_MSG );
     }
@@ -72,10 +68,10 @@ ISR( SPI_STC_vect ) {
     }
     break;
   case NB_POST:
-    if ( ( byte ) nb_sig_end[nb_pos] != c ) {
+    if ( ( uint8_t ) nb_sig_end[nb_pos] != c ) {
       nb_gostate( NB_PRE );
     }
-    SPDR = ~( byte ) nb_sig_end[nb_pos];
+    SPDR = ~( uint8_t ) nb_sig_end[nb_pos];
     if ( ++nb_pos == NB_SIG_LEN ) {
       nb_gostate( NB_DONE );
     }
@@ -88,7 +84,7 @@ ISR( SPI_STC_vect ) {
 
 static void
 nb_poll(  ) {
-  unsigned addr;
+  uint16_t addr;
 
   if ( nb_state != NB_DONE )
     return;
@@ -106,7 +102,7 @@ nb_poll(  ) {
 }
 
 static void
-nb_changed( unsigned addr, byte ov, byte nv ) {
+nb_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
   Serial.print( addr );
   Serial.print( " " );
   Serial.print( ov );
@@ -121,7 +117,7 @@ pwm_set( uint8_t addr, uint8_t v ) {
 }
 
 static void
-pwm_changed( unsigned addr, byte ov, byte nv ) {
+pwm_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
   pwm_set( addr - NB_I_CAM_PAN, nv );
 }
 
@@ -140,9 +136,6 @@ setup( void ) {
   nb_init(  );
   nb_register( nb_changed, 0, NB_SIZE - 1 );
   nb_register( pwm_changed, NB_I_CAM_TILT, NB_I_CAM_PAN );
-
-  pos = 0;
-  process_it = false;
 
   pinMode( MISO, OUTPUT );
 
