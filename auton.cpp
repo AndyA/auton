@@ -6,7 +6,7 @@
 
 #include "auton.h"
 
-#define SERVOMIN  150
+#define SERVOMIN  300
 #define SERVOMAX  600
 
 PWM pwm = PWM(  );
@@ -111,7 +111,8 @@ nb_changed( unsigned addr, byte ov, byte nv ) {
 
 static void
 pwm_set( uint8_t num, uint8_t v ) {
-  pwm.setPWM( num, 0, v * ( SERVOMAX - SERVOMIN ) / 255 + SERVOMIN );
+  pwm.setPWM( num, 0,
+              ( uint16_t ) v * ( SERVOMAX - SERVOMIN ) / 255 + SERVOMIN );
 }
 
 void
@@ -120,9 +121,10 @@ setup( void ) {
   Serial.begin( 9600 );
 
   pwm.begin(  );
+
   pwm.setPWMFreq( 60 );
   for ( i = 0; i < 16; i++ ) {
-    pwm_set( i, 128 );
+    pwm_set( i, i * i );
   }
 
   nb_init(  );
