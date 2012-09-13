@@ -6,8 +6,8 @@
 
 #include "auton.h"
 
-#define SERVOMIN  300
-#define SERVOMAX  600
+#define SERVOMIN  150
+#define SERVOMAX  700
 
 PWM pwm = PWM(  );
 
@@ -113,7 +113,7 @@ nb_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
 static void
 pwm_set( uint8_t addr, uint8_t v ) {
   pwm.setPWM( addr, 0,
-              ( uint16_t ) v * ( SERVOMAX - SERVOMIN ) / 255 + SERVOMIN );
+              ( uint32_t ) v * ( SERVOMAX - SERVOMIN ) / 255 + SERVOMIN );
 }
 
 static void
