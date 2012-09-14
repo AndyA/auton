@@ -119,11 +119,6 @@ nb_poke( unsigned addr, uint8_t v ) {
   pthread_mutex_unlock( &nb_i_mtx );
 }
 
-/*static uint8_t*/
-/*sinpos( unsigned phase, double mult, double scale ) {*/
-/*  return sin( phase / mult ) * scale + 128;*/
-/*}*/
-
 static void *
 nb_worker( void *arg ) {
   while ( 1 ) {
