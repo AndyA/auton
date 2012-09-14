@@ -20,6 +20,7 @@ event_get(  ) {
     event = alloc( sizeof( event_t ) );
   }
   pthread_mutex_unlock( &free_mtx );
+  return event;
 }
 
 void
