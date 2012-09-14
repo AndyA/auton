@@ -22,6 +22,14 @@ event_get(  ) {
   pthread_mutex_unlock( &free_mtx );
 }
 
+void
+event_release( event_t * event ) {
+  pthread_mutex_lock( &free_mtx );
+  event->next = free_list;
+  free_list = event;
+  pthread_mutex_unlock( &free_mtx );
+}
+
 event_t *
 event_make( uint16_t addr, uint8_t ov, uint8_t nv ) {
   event_t *event = event_get(  );
@@ -30,14 +38,6 @@ event_make( uint16_t addr, uint8_t ov, uint8_t nv ) {
   event->ov = ov;
   event->nv = nv;
   return event;
-}
-
-void
-event_release( event_t * event ) {
-  pthread_mutex_lock( &free_mtx );
-  event->next = free_list;
-  free_list = event;
-  pthread_mutex_unlock( &free_mtx );
 }
 
 /* vim:ts=2:sw=2:sts=2:et:ft=c 
