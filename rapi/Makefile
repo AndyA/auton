@@ -1,15 +1,17 @@
 .PHONY: all clean
 
+VPATH = ../common
+
 CFLAGS=-Wall -g3 -I../common
 LDFLAGS=-lc -lm -lpthread
 
 BINS=spi
-OBJS=spi.o
+OBJS=spi.o queue.o event.o util.o noticeboard.o
 DEPS=$(OBJS:.o=.d) 
 
 all: $(BINS)
 
-spi: spi.o
+spi: $(OBJS)
 
 %.d: %.c
 	@$(SHELL) -ec '$(CC) -MM $(CFLAGS) $< \

@@ -14,11 +14,12 @@ ALIBS=$(wildcard $(ARDUINO_BASE)/libraries/*) $(wildcard $(ARDUINO_BASE)/librari
 APATH=$(subst $(SPACE),:,$(ALIBS))
 AINC=$(addprefix -I,$(ALIBS))
 
-VPATH = $(ARDUINO_LIB):$(APATH)
+VPATH = $(ARDUINO_LIB):$(APATH):common
 
 SRC =   WInterrupts.c \
 	wiring.c \
 	twi.c \
+	noticeboard.c \
 	wiring_analog.c \
 	wiring_digital.c \
 	wiring_pulse.c \

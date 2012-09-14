@@ -4,14 +4,12 @@
 
 #include "PWM.h"
 
-#include "auton.h"
+#include "noticeboard.h"
 
 #define SERVOMIN  150
 #define SERVOMAX  700
 
 PWM pwm = PWM(  );
-
-typedef void ( *nb_cb_func ) ( uint16_t addr, uint8_t ov, uint8_t nv );
 
 static uint8_t nb_i[NB_SIZE];
 static uint8_t nb_o[NB_SIZE];
