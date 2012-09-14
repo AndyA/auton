@@ -29,7 +29,8 @@ enum {
 
 enum {
   NB_O_OVERRUN,
-  NB_O_FOO,
+  NB_O_JOY_X,
+  NB_O_JOY_Y,
   NB_O_SIZE
 };
 

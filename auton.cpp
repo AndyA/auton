@@ -132,7 +132,9 @@ static unsigned long foo;
 void
 loop( void ) {
   nb_poll(  );
-  nb_o[NB_O_FOO] = foo++ >> 18;
+
+  nb_o[NB_O_JOY_X] = analogRead( 0 ) >> 2;
+  nb_o[NB_O_JOY_Y] = analogRead( 1 ) >> 2;
 }
 
 int
