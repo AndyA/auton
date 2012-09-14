@@ -92,8 +92,6 @@ nb_transfer(  ) {
       nb_o[i] = nv;
     }
   }
-
-  memcpy( nb_o, rx + 1 + NB_SIG_LEN, NB_SIZE );
   pthread_mutex_unlock( &nb_o_mtx );
 }
 
