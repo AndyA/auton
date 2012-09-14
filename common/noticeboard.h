@@ -42,7 +42,6 @@ extern nb_cb_func nb_cb[NB_SIZE];
 }
 #endif
 
-
 #endif
 
 /* vim:ts=2:sw=2:sts=2:et:ft=c 
