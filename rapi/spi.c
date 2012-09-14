@@ -1,4 +1,3 @@
-#include <ctype.h>
 #include <fcntl.h>
 #include <math.h>
 #include <getopt.h>
@@ -13,9 +12,10 @@
 #include <linux/spi/spidev.h>
 #include <pthread.h>
 #include <errno.h>
-
-#include "auton.h"
-
+#include "event.h"
+#include "queue.h"
+#include "util.h"
+#include "noticeboard.h"
 static uint8_t nb_i[NB_SIZE];
 static uint8_t nb_o[NB_SIZE];
 
@@ -24,6 +24,7 @@ static char nb_sig_end[NB_SIG_LEN];
 
 pthread_mutex_t nb_i_mtx = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t nb_o_mtx = PTHREAD_MUTEX_INITIALIZER;
+queue_t event_queue = QUEUE_INITIALIZER;
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
@@ -33,29 +34,6 @@ static uint8_t bits = 8;
 static uint32_t speed = 125000;
 static uint16_t delay;
 static int fd;
-
-static void
-die( const char *fmt, ... ) {
-  va_list ap;
-  va_start( ap, fmt );
-  vfprintf( stderr, fmt, ap );
-  fprintf( stderr, "\n" );
-  va_end( ap );
-  exit( 1 );
-}
-
-static void
-hexdump( const void *buf, size_t size ) {
-  const uint8_t *bp = buf;
-  unsigned i;
-  for ( i = 0; i < size; i++ ) {
-    printf( "%02x ", bp[i] );
-  }
-  for ( i = 0; i < size; i++ ) {
-    printf( "%c", isprint( bp[i] ) ? bp[i] : '.' );
-  }
-  printf( "\n" );
-}
 
 static void
 nb_flip_string( char *buf, const char *str ) {
@@ -71,7 +49,7 @@ nb_init( void ) {
 
 static void
 nb_transfer(  ) {
-  int ret;
+  int ret, i;
   uint8_t tx[NB_SIG_LEN + NB_SIZE + NB_SIG_LEN];
   uint8_t rx[NB_SIG_LEN + NB_SIZE + NB_SIG_LEN];
 
@@ -106,7 +84,14 @@ nb_transfer(  ) {
   }
 
   pthread_mutex_lock( &nb_o_mtx );
-  memcpy( nb_o, rx + 1 + NB_SIG_LEN, NB_SIZE );
+  for ( i = 0; i < NB_SIZE; i++ ) {
+    uint8_t nv = rx[1 + NB_SIG_LEN + i];
+    uint8_t ov = nb_o[i];
+    if ( nv != ov ) {
+      queue_enqueue( &event_queue, event_make( i, ov, nv ) );
+      nb_o[i] = nv;
+    }
+  }
   pthread_mutex_unlock( &nb_o_mtx );
 }
 
@@ -137,7 +122,6 @@ nb_poke( unsigned addr, uint8_t v ) {
 static uint8_t
 sinpos( unsigned phase, double mult, double scale ) {
   return sin( phase / mult ) * scale + 128;
-
 }
 
 static void *
@@ -153,10 +137,27 @@ nb_worker( void *arg ) {
   return NULL;
 }
 
+static void *
+event_worker( void *arg ) {
+  while ( 1 ) {
+    event_t *event = queue_dequeue( &event_queue );
+    nb_cb_func cb = nb_cb[event->addr];
+    if ( cb )
+      cb( event->addr, event->ov, event->nv );
+    event_release( event );
+  }
+  return NULL;
+}
+
+static void
+nb_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
+  printf( "%3d: %3d -> %3d\n", addr, ov, nv );
+}
+
 int
 main( int argc, char *argv[] ) {
   int ret = 0;
-  pthread_t worker;
+  pthread_t spi_handler, event_handler;
   void *rv;
 
   fd = open( device, O_RDWR );
@@ -198,12 +199,23 @@ main( int argc, char *argv[] ) {
 
   nb_init(  );
 
-  if ( pthread_create( &worker, NULL, nb_worker, NULL ) < 0 ) {
+  nb_register( nb_changed, 0, NB_SIZE - 1 );
+
+  if ( pthread_create( &spi_handler, NULL, nb_worker, NULL ) < 0 ) {
     die( "Thread creation failed: %s", strerror( errno ) );
   }
-  pthread_join( worker, &rv );
+
+  if ( pthread_create( &event_handler, NULL, event_worker, NULL ) < 0 ) {
+    die( "Thread creation failed: %s", strerror( errno ) );
+  }
+
+  pthread_join( spi_handler, &rv );
+  pthread_join( event_handler, &rv );
 
   close( fd );
   pthread_exit( NULL );
   return ret;
 }
+
+/* vim:ts=2:sw=2:sts=2:et:ft=c 
+ */
