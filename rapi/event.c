@@ -9,15 +9,17 @@ pthread_mutex_t free_mtx = PTHREAD_MUTEX_INITIALIZER;
 event_t *
 event_get(  ) {
   event_t *event;
+  pthread_mutex_lock( &free_mtx );
   if ( free_list ) {
-    pthread_mutex_lock( &free_mtx );
     event = free_list;
     free_list = event->next;
-    pthread_mutex_unlock( &free_mtx );
     event = free_list;
     return event;
   }
-  return alloc( sizeof( event_t ) );
+  else {
+    event = alloc( sizeof( event_t ) );
+  }
+  pthread_mutex_unlock( &free_mtx );
 }
 
 event_t *
