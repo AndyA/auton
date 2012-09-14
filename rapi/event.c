@@ -13,8 +13,6 @@ event_get(  ) {
   if ( free_list ) {
     event = free_list;
     free_list = event->next;
-    event = free_list;
-    return event;
   }
   else {
     event = alloc( sizeof( event_t ) );
