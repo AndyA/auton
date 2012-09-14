@@ -127,9 +127,12 @@ setup( void ) {
   SPCR |= _BV( SPE ) | _BV( SPIE );
 }
 
+static unsigned long foo;
+
 void
 loop( void ) {
   nb_poll(  );
+  nb_o[NB_O_FOO] = foo++ >> 18;
 }
 
 int
