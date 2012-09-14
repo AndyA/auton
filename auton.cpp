@@ -14,7 +14,6 @@ PWM pwm = PWM(  );
 static uint8_t nb_i[NB_SIZE];
 static uint8_t nb_o[NB_SIZE];
 static uint8_t nb_i_tmp[NB_SIZE];
-static nb_cb_func nb_cb[NB_SIZE];
 static uint16_t nb_pos;
 static volatile uint8_t nb_state;
 
@@ -30,18 +29,6 @@ static void
 nb_init(  ) {
   nb_state = NB_PRE;
   nb_pos = 0;
-}
-
-static void
-nb_register( nb_cb_func cb, uint16_t lo, uint16_t hi ) {
-  uint16_t addr;
-  if ( hi < lo ) {
-    uint16_t t = lo;
-    lo = hi;
-    hi = t;
-  }
-  for ( addr = lo; addr <= hi; addr++ )
-    nb_cb[addr] = cb;
 }
 
 ISR( SPI_STC_vect ) {
@@ -102,9 +89,9 @@ nb_poll(  ) {
 static void
 nb_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
   Serial.print( addr );
-  Serial.print( " " );
+  Serial.print( ": " );
   Serial.print( ov );
-  Serial.print( " " );
+  Serial.print( " -> " );
   Serial.println( nv );
 }
 

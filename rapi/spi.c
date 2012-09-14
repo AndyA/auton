@@ -12,15 +12,12 @@
 #include <linux/spi/spidev.h>
 #include <pthread.h>
 #include <errno.h>
-
 #include "event.h"
 #include "queue.h"
 #include "util.h"
 #include "noticeboard.h"
-
 static uint8_t nb_i[NB_SIZE];
 static uint8_t nb_o[NB_SIZE];
-static nb_cb_func nb_cb[NB_SIZE];
 
 static char nb_sig_start[NB_SIG_LEN];
 static char nb_sig_end[NB_SIG_LEN];
@@ -95,6 +92,7 @@ nb_transfer(  ) {
       nb_o[i] = nv;
     }
   }
+
   memcpy( nb_o, rx + 1 + NB_SIG_LEN, NB_SIZE );
   pthread_mutex_unlock( &nb_o_mtx );
 }
@@ -141,10 +139,27 @@ nb_worker( void *arg ) {
   return NULL;
 }
 
+static void *
+event_worker( void *arg ) {
+  while ( 1 ) {
+    event_t *event = queue_dequeue( &event_queue );
+    nb_cb_func cb = nb_cb[event->addr];
+    if ( cb )
+      cb( event->addr, event->ov, event->nv );
+    event_release( event );
+  }
+  return NULL;
+}
+
+static void
+nb_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
+  printf( "%3d: %3d -> %3d\n", addr, ov, nv );
+}
+
 int
 main( int argc, char *argv[] ) {
   int ret = 0;
-  pthread_t worker;
+  pthread_t spi_handler, event_handler;
   void *rv;
 
   fd = open( device, O_RDWR );
@@ -186,10 +201,18 @@ main( int argc, char *argv[] ) {
 
   nb_init(  );
 
-  if ( pthread_create( &worker, NULL, nb_worker, NULL ) < 0 ) {
+  nb_register( nb_changed, 0, NB_SIZE - 1 );
+
+  if ( pthread_create( &spi_handler, NULL, nb_worker, NULL ) < 0 ) {
     die( "Thread creation failed: %s", strerror( errno ) );
   }
-  pthread_join( worker, &rv );
+
+  if ( pthread_create( &event_handler, NULL, event_worker, NULL ) < 0 ) {
+    die( "Thread creation failed: %s", strerror( errno ) );
+  }
+
+  pthread_join( spi_handler, &rv );
+  pthread_join( event_handler, &rv );
 
   close( fd );
   pthread_exit( NULL );

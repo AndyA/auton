@@ -4,10 +4,15 @@
 #define __AUTON_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #define NB_SIG_START  "<([{"
 #define NB_SIG_END    "}])>"
 #define NB_SIG_LEN    4
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* I(nput) and O(utput) are from the PoV of the Arduino */
 
@@ -28,6 +33,15 @@ enum {
   ((size_t) NB_I_SIZE > (size_t) NB_O_SIZE ? (size_t) NB_I_SIZE : (size_t) NB_O_SIZE)
 
 typedef void ( *nb_cb_func ) ( uint16_t addr, uint8_t ov, uint8_t nv );
+
+void nb_register( nb_cb_func cb, uint16_t lo, uint16_t hi );
+
+extern nb_cb_func nb_cb[NB_SIZE];
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif
 
