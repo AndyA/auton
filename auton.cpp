@@ -120,7 +120,7 @@ setup( void ) {
 
   nb_init(  );
   nb_register( nb_changed, 0, NB_SIZE - 1 );
-  nb_register( pwm_changed, NB_I_CAM_TILT, NB_I_CAM_PAN );
+  nb_register( pwm_changed, NB_I_SERVO_START, NB_I_SERVO_END );
 
   pinMode( MISO, OUTPUT );
 
