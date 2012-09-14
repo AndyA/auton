@@ -9,6 +9,8 @@
 #define SERVOMIN  150
 #define SERVOMAX  700
 
+#define TICKSPERSECOND 250
+
 PWM pwm = PWM(  );
 
 static uint8_t nb_i[NB_SIZE];
@@ -104,6 +106,19 @@ pwm_set( uint8_t addr, uint8_t v ) {
 static void
 pwm_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
   pwm_set( addr - NB_I_CAM_PAN, nv );
+}
+
+ISR( TIMER2_OVF_vect ) {
+  TCNT2 = 256 - TICKSPERSECOND;
+}
+
+static void
+setup_timer( void ) {
+  TCCR2B = ( 1 << CS22 ) | ( 1 << CS21 );
+  ASSR |= ( 0 << AS2 );
+  TCCR2A = 0;
+  TCNT2 = 256 - TICKSPERSECOND;
+  TIMSK2 = ( 1 << TOIE2 );
 }
 
 void
