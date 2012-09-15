@@ -18,6 +18,7 @@ static uint8_t nb_o[NB_SIZE];
 static uint8_t nb_i_tmp[NB_SIZE];
 static uint16_t nb_pos;
 static volatile uint8_t nb_state;
+static uint32_t timer;
 
 static const char nb_sig_start[] = NB_SIG_START;
 static const char nb_sig_end[] = NB_SIG_END;
@@ -108,23 +109,35 @@ pwm_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
   pwm_set( addr - NB_I_CAM_PAN, nv );
 }
 
-ISR( TIMER2_OVF_vect ) {
-  TCNT2 = 256 - TICKSPERSECOND;
-}
+//static uint32_t
+//get_timer( void ) {
+//  uint32_t tt;
+//  cli(  );
+//  tt = timer;
+//  sei(  );
+//  return tt;
+//}
 
-static void
-setup_timer( void ) {
-  TCCR2B = ( 1 << CS22 ) | ( 1 << CS21 );
-  ASSR |= ( 0 << AS2 );
-  TCCR2A = 0;
-  TCNT2 = 256 - TICKSPERSECOND;
-  TIMSK2 = ( 1 << TOIE2 );
-}
+//ISR( TIMER2_OVF_vect ) {
+//  TCNT2 = 256 - TICKSPERSECOND;
+//  timer++;
+//}
+
+//static void
+//setup_timer( void ) {
+//  TCCR2B = ( 1 << CS22 ) | ( 1 << CS21 );
+//  ASSR |= ( 0 << AS2 );
+//  TCCR2A = 0;
+//  TCNT2 = 256 - TICKSPERSECOND;
+//  TIMSK2 = ( 1 << TOIE2 );
+//}
 
 void
 setup( void ) {
   int i;
   Serial.begin( 9600 );
+
+//  setup_timer(  );
 
   pwm.begin(  );
 
@@ -142,14 +155,14 @@ setup( void ) {
   SPCR |= _BV( SPE ) | _BV( SPIE );
 }
 
-static unsigned long foo;
-
 void
 loop( void ) {
   nb_poll(  );
 
   nb_o[NB_O_JOY_X] = analogRead( 0 ) >> 2;
   nb_o[NB_O_JOY_Y] = analogRead( 1 ) >> 2;
+
+//  nb_o[NB_O_TIMER]++;
 }
 
 int
