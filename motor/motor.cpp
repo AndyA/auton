@@ -29,7 +29,7 @@ loop(  ) {
   delay( 3000 );
 
   digitalWrite( 9, HIGH );      //Engage the Brake for Channel A
-  digitalWrite( 9, HIGH );      //Engage the Brake for Channel B
+  digitalWrite( 8, HIGH );      //Engage the Brake for Channel B
 
   delay( 1000 );
 
@@ -46,7 +46,7 @@ loop(  ) {
   delay( 3000 );
 
   digitalWrite( 9, HIGH );      //Engage the Brake for Channel A
-  digitalWrite( 9, HIGH );      //Engage the Brake for Channel B
+  digitalWrite( 8, HIGH );      //Engage the Brake for Channel B
 
   delay( 1000 );
 
