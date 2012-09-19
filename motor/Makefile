@@ -1,7 +1,7 @@
 TARGET = $(notdir $(CURDIR))
 PORT = /dev/ttyACM0
-AVRDUDE_PROGRAMMER = stk500v1
-MCU = atmega328p 
+AVRDUDE_PROGRAMMER = stk500v2
+MCU = atmega2560
 F_CPU = 16000000L
 VARIANT = standard
 
@@ -23,12 +23,7 @@ SRC =   WInterrupts.c \
 	wiring_pulse.c \
 	wiring_shift.c
 
-CXXSRC = HardwareSerial.cpp \
-	Stream.cpp \
-	Print.cpp \
-	WString.cpp \
-	WMath.cpp \
-	new.cpp
+CXXSRC =
 
 
 FORMAT = ihex
