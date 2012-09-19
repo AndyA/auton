@@ -3,7 +3,7 @@ PORT = /dev/ttyACM0
 AVRDUDE_PROGRAMMER = stk500v2
 MCU = atmega2560
 F_CPU = 16000000L
-VARIANT = standard
+VARIANT = mega
 
 include ~/.arduino.mk
 
