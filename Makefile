@@ -92,6 +92,7 @@ MV = mv -f
 
 # Define all object files.
 OBJ = $(notdir $(SRC:.c=.o) $(CXXSRC:.cpp=.o) $(ASRC:.S=.o))
+ASM = $(notdir $(SRC:.c=.s) $(CXXSRC:.cpp=.s)) $(TARGET).s
 
 # Define all listing files.
 LST = $(OBJ:.o=.lst)
@@ -104,6 +105,8 @@ ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Default target.
 all: build sizeafter
+
+asm: $(ASM)
 
 build: elf hex
 
@@ -186,6 +189,9 @@ core.a: $(OBJ)
 .c.s:
 	$(CC) -S $(ALL_CFLAGS) $< -o $@
 
+.cpp.s:
+	$(CXX) -S $(ALL_CXXFLAGS) $< -o $@
+
 # Assemble: create object files from assembler source files.
 .S.o:
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
@@ -209,7 +215,7 @@ include $(TARGET).d
 clean:
 	$(REMOVE) $(TARGET).hex $(TARGET).eep $(TARGET).cof $(TARGET).elf \
 	$(TARGET).map $(TARGET).sym $(TARGET).lss $(TARGET).o $(TARGET).d core.a \
-	$(OBJ) $(LST) $(OBJ:.o=.s) $(OBJ:.o=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d) \
+	$(OBJ) $(ASM) $(OBJ:.o=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d) \
 	pulsedtr
 
 test:

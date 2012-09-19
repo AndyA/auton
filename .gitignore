@@ -3,6 +3,7 @@
 *.elf
 *.hex
 *.o
+*.s
 .*.sw?
 .DS_Store
 /.gdb_history
