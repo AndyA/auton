@@ -1,5 +1,7 @@
 #include "Arduino.h"
 
+#include "brain.h"
+
 #define IN_LF   7
 #define IN_LR   8
 #define IN_RF   2
@@ -20,10 +22,11 @@
 #define LEFT    IN_LF, IN_LR, OUT_LF, OUT_LR
 #define RIGHT   IN_RF, IN_RR, OUT_RF, OUT_RR
 #define FAR     60
-#define NEAR    200
-#define NEUTRAL 160
+#define NEAR    195
+#define NEUTRAL 190
 
 static int16_t left, right;
+static int16_t speed;
 
 static void
 init_channel( CHANNEL ) {
@@ -31,6 +34,21 @@ init_channel( CHANNEL ) {
   pinMode( in_r, INPUT );
   pinMode( out_f, OUTPUT );
   pinMode( out_r, OUTPUT );
+}
+
+static int16_t
+set_channel( CHANNEL, int16_t speed ) {
+  speed = max( -255, min( speed, 255 ) );
+
+  if ( speed < 0 ) {
+    analogWrite( out_f, 0 );
+    analogWrite( out_r, -speed );
+  }
+  else {
+    analogWrite( out_r, 0 );
+    analogWrite( out_f, speed );
+  }
+  return speed;
 }
 
 static void
@@ -48,10 +66,7 @@ update_channel( CHANNEL, int16_t * speed, uint16_t prox ) {
     *speed += delta;
   }
 
-  if ( *speed > 255 )
-    *speed = 255;
-  else if ( *speed < -255 )
-    *speed = -255;
+  *speed = max( -255, min( *speed, 255 ) );
 
   if ( *speed < 0 ) {
     analogWrite( out_f, 0 );
@@ -65,6 +80,7 @@ update_channel( CHANNEL, int16_t * speed, uint16_t prox ) {
 
 void
 setup(  ) {
+  br_init(  );
   pinMode( CONTROL_MODE, INPUT );
   init_channel( LEFT );
   init_channel( RIGHT );
@@ -72,8 +88,15 @@ setup(  ) {
 
 void
 loop(  ) {
-  update_channel( LEFT, &left, analogRead( RANGE_R ) );
-  update_channel( RIGHT, &right, analogRead( RANGE_L ) );
+  uint16_t lprox = analogRead( RANGE_R );
+  uint16_t rprox = analogRead( RANGE_L );
+  int16_t ldrive, rdrive;
+
+  br_update( lprox, rprox, &ldrive, &rdrive );
+
+  set_channel( LEFT, ldrive );
+  set_channel( RIGHT, rdrive );
+
   delay( 40 );
 }
 

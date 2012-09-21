@@ -17,7 +17,9 @@ AINC=$(addprefix -I,$(ALIBS))
 
 VPATH = $(ARDUINO_LIB):$(APATH):common
 
-SRC =   WInterrupts.c \
+SRC =   brain.c \
+	mavg.c \
+	WInterrupts.c \
 	wiring.c \
 	wiring_analog.c \
 	wiring_digital.c \
