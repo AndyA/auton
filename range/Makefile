@@ -30,6 +30,7 @@ CXXSRC = HardwareSerial.cpp \
 	WString.cpp \
 	WMath.cpp \
 	Wire.cpp \
+	Tone.cpp \
 	new.cpp
 
 FORMAT = ihex
