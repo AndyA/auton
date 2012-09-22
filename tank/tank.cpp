@@ -49,16 +49,16 @@ set_channel( CHANNEL, int16_t speed ) {
 }
 
 void
-setup(  ) {
+setup( ) {
   Serial.begin( 38400 );
-  br_init(  );
+  br_init( );
   pinMode( CONTROL_MODE, INPUT );
   init_channel( LEFT );
   init_channel( RIGHT );
 }
 
 void
-loop(  ) {
+loop( ) {
   uint16_t lprox = analogRead( RANGE_L );
   uint16_t rprox = analogRead( RANGE_R );
   int16_t ldrive, rdrive;
@@ -77,10 +77,10 @@ loop(  ) {
 
 int
 main( void ) {
-  init(  );
-  setup(  );
+  init( );
+  setup( );
   for ( ;; ) {
-    loop(  );
+    loop( );
   }
   return 0;
 }
