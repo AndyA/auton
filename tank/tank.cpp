@@ -12,8 +12,8 @@
 #define OUT_RF  3
 #define OUT_RR  5
 
-#define RANGE_L 0
-#define RANGE_R 1
+#define RANGE_L 1
+#define RANGE_R 0
 
 #define CONTROL_MODE 13
 
@@ -21,9 +21,6 @@
 
 #define LEFT    IN_LF, IN_LR, OUT_LF, OUT_LR
 #define RIGHT   IN_RF, IN_RR, OUT_RF, OUT_RR
-#define FAR     60
-#define NEAR    195
-#define NEUTRAL 190
 
 static int16_t left, right;
 static int16_t speed;
@@ -51,35 +48,9 @@ set_channel( CHANNEL, int16_t speed ) {
   return speed;
 }
 
-static void
-update_channel( CHANNEL, int16_t * speed, uint16_t prox ) {
-  if ( digitalRead( in_f ) ) {
-    ( *speed )++;
-  }
-  else if ( digitalRead( in_r ) ) {
-    ( *speed )--;
-  }
-  else {
-    int16_t delta = NEUTRAL - prox;
-    if ( *speed < 0 && delta < 0 )
-      delta /= 3;
-    *speed += delta;
-  }
-
-  *speed = max( -255, min( *speed, 255 ) );
-
-  if ( *speed < 0 ) {
-    analogWrite( out_f, 0 );
-    analogWrite( out_r, -*speed );
-  }
-  else {
-    analogWrite( out_r, 0 );
-    analogWrite( out_f, *speed );
-  }
-}
-
 void
 setup(  ) {
+  Serial.begin( 38400 );
   br_init(  );
   pinMode( CONTROL_MODE, INPUT );
   init_channel( LEFT );
@@ -88,14 +59,18 @@ setup(  ) {
 
 void
 loop(  ) {
-  uint16_t lprox = analogRead( RANGE_R );
-  uint16_t rprox = analogRead( RANGE_L );
+  uint16_t lprox = analogRead( RANGE_L );
+  uint16_t rprox = analogRead( RANGE_R );
   int16_t ldrive, rdrive;
 
   br_update( lprox, rprox, &ldrive, &rdrive );
 
   set_channel( LEFT, ldrive );
   set_channel( RIGHT, rdrive );
+
+//  Serial.print( ldrive );
+//  Serial.print( "," );
+//  Serial.println( rdrive );
 
   delay( 40 );
 }

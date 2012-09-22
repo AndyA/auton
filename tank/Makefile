@@ -17,8 +17,7 @@ AINC=$(addprefix -I,$(ALIBS))
 
 VPATH = $(ARDUINO_LIB):$(APATH):common
 
-SRC =   brain.c \
-	mavg.c \
+SRC =   mavg.c \
 	WInterrupts.c \
 	wiring.c \
 	wiring_analog.c \
@@ -26,8 +25,12 @@ SRC =   brain.c \
 	wiring_pulse.c \
 	wiring_shift.c
 
-CXXSRC =
-
+CXXSRC = HardwareSerial.cpp \
+	Stream.cpp \
+	Print.cpp \
+	WString.cpp \
+	brain.cpp \
+	new.cpp
 
 FORMAT = ihex
 
