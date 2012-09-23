@@ -25,11 +25,13 @@
 
 static Brain brain;
 static ExploreInstinct explore;
+static SteerInstinct steer;
 
 static int16_t turn, drive;
 
 static void init_brain() {
   brain.addInstinct( &explore );
+  brain.addInstinct( &steer );
 }
 
 static void init_channel( CHANNEL ) {

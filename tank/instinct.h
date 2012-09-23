@@ -3,29 +3,8 @@
 #ifndef __INSTINCT_H
 #define __INSTINCT_H
 
+#include "observation.h"
 #include <stdint.h>
-
-template <class T, int N>
-class Observation {
-private:
-  T ds[N];
-  uint16_t pos, used;
-public:
-  Observation();
-  void push( T d );
-};
-
-template <class T, int N>
-Observation<T, N>::Observation() {
-  pos = used = 0;
-}
-
-template <class T, int N>
-void Observation<T, N>::push( T d ) {
-  if ( pos == N ) pos = 0;
-  ds[pos++] = d;
-  if ( pos > used ) used = pos;
-}
 
 class Context {
 private:
@@ -54,6 +33,12 @@ public:
 };
 
 class ExploreInstinct: public Instinct {
+public:
+  virtual uint8_t consider( const Context *ctx );
+  virtual void apply( const Context *ctx, Insight *res );
+};
+
+class SteerInstinct: public Instinct {
 public:
   virtual uint8_t consider( const Context *ctx );
   virtual void apply( const Context *ctx, Insight *res );

@@ -30,6 +30,7 @@ CXXSRC = HardwareSerial.cpp \
 	WString.cpp \
 	brain.cpp \
 	instinct.cpp \
+	observation.cpp \
 	new.cpp
 
 FORMAT = ihex

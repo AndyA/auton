@@ -32,6 +32,12 @@ uint8_t ExploreInstinct::consider( const Context *ctx ) {
 }
 
 void ExploreInstinct::apply( const Context *ctx, Insight *res ) {
-  res->turn = 0;
   res->drive = 255; // hit it!
+}
+
+uint8_t SteerInstinct::consider( const Context *ctx ) {
+  return 1;
+}
+
+void SteerInstinct::apply( const Context *ctx, Insight *res ) {
 }
