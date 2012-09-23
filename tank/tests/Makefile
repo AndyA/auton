@@ -3,7 +3,7 @@
 VPATH = ../lib
 
 CFLAGS=-Wall -g3 -I../lib
-# LDFLAGS=-lc -lm -lpthread
+LDFLAGS=-lc -lm
 
 SRC=$(wildcard *.t)
 TESTS=$(SRC:.t=.T)
@@ -15,10 +15,11 @@ DEPS=$(OBJS:.o=.d)
 test: $(TESTS)
 	prove -e '' $(addprefix ./,$(TESTS))
 
+10_imath.T: imath.o
 20_observation.T: observation.o imath.o
 
 %.T: %.o $(COMOBJ)
-	$(CC) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.cpp
 	$(CC) $(CPPFLAGS) $(CFLAGS) -x c++ -c -o $@ $<
