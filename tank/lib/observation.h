@@ -12,7 +12,7 @@ private:
   T ds[N];
   uint16_t pos, used;
   uint8_t dirty;
-  T mean, rms, min, max;
+  T mean, rms, acrms, min, max;
 private:
   T computeSum();
   void compute();
@@ -28,6 +28,10 @@ public:
   T getRMS() {
     freshen();
     return rms;
+  }
+  T getACRMS() {
+    freshen();
+    return acrms;
   }
   T getMin() {
     freshen();
@@ -53,14 +57,15 @@ T Observation<T, N>::computeSum( ) {
 
 template <class T, int N>
 void Observation<T, N>::compute( ) {
-  uint32_t ms = 0;
+  uint32_t ms = 0, acms = 0;
   uint16_t i;
 
   mean = computeSum() / N;
 
   for ( i = 0; i < N; i++ ) {
-    T dd = ds[i] - mean;
-    ms += dd * dd;
+    T acdd = ds[i] - mean;
+    acms += acdd * acdd;
+    ms += ds[i] * ds[i];
     if ( i == 0 ) {
       min = max = ds[i];
     }
@@ -71,6 +76,7 @@ void Observation<T, N>::compute( ) {
   }
 
   rms = isqrt( ms / N );
+  acrms = isqrt( acms / N );
 }
 
 template <class T, int N>
