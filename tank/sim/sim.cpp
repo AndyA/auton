@@ -9,10 +9,14 @@
 static Brain brain;
 static ExploreInstinct explore;
 static SteerInstinct steer;
+static StopInstinct stop;
+static EscapeInstinct escape;
 
 static void init_brain() {
   brain.addInstinct( &explore );
   brain.addInstinct( &steer );
+  brain.addInstinct( &stop );
+  brain.addInstinct( &escape );
 }
 
 int main( void ) {

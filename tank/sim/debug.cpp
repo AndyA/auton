@@ -28,7 +28,9 @@ static char *fmt_time( char *buf, size_t len, unsigned millis ) {
 static void __trace( unsigned l, const char *msg, va_list ap ) {
   if ( l <= level ) {
     char tsbuf[20];
+    unsigned i;
     printf( "%s: ", fmt_time( tsbuf, sizeof( tsbuf ), ts ) );
+    for ( i = 0; i != l; i++ ) printf( "  " );
     vprintf( msg, ap );
     printf( "\n" );
   }

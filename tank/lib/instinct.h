@@ -55,6 +55,18 @@ public:
   virtual void apply( Context *ctx, Insight *res );
 };
 
+class StopInstinct: public Instinct {
+public:
+  virtual uint8_t consider( Context *ctx );
+  virtual void apply( Context *ctx, Insight *res );
+};
+
+class EscapeInstinct: public Instinct {
+public:
+  virtual uint8_t consider( Context *ctx );
+  virtual void apply( Context *ctx, Insight *res );
+};
+
 #endif
 
 // vim:ts=2:sw=2:sts=2:et:ft=cpp

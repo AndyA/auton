@@ -3,8 +3,8 @@
 #include "common.h"
 
 #define FAR     60
-#define NEAR    210
-#define NEUTRAL 186
+#define NEAR    200
+#define NEUTRAL 150
 
 void Capacitor::charge( int32_t e ) {
   if ( sgn( energy ) == sgn( e ) ) energy += e;
@@ -47,10 +47,35 @@ void SteerInstinct::apply( Context *ctx, Insight *res ) {
   int16_t delta = max( max( dl, dr ), 0 );
   int16_t diff = dl - dr;
 
-  if ( ctx->getProx() > NEUTRAL && delta > 5 )
-    cap.charge( sgn( diff ) * delta * 10 );
+  if ( ctx->getProx() > NEUTRAL && delta > 3 )
+    cap.charge( sgn( diff ) * delta * 2 );
 
   cap.discharge( &res->turn, 255 );
+}
+
+uint8_t StopInstinct::consider( Context *ctx ) {
+  if ( ctx->getProx() > NEAR ) return 2;
+  return 0;
+}
+
+void StopInstinct::apply( Context *ctx, Insight *res ) {
+  DEBUG( ( "Too close, stop" ) );
+  res->drive = 0;
+}
+
+uint8_t EscapeInstinct::consider( Context *ctx ) {
+  DEBUG( ( "drive RMS = %d, turn RMS = %d", ctx->drive.getRMS(), ctx->turn.getRMS() ) );
+  if ( ctx->drive.getRMS() < 20 && ctx->turn.getRMS() < 30 ) return 2;
+  return 0;
+}
+
+void EscapeInstinct::apply( Context *ctx, Insight *res ) {
+  int16_t dl = ctx->lprox.getMean();
+  int16_t dr = ctx->rprox.getMean();
+  int16_t diff = dl - dr;
+  DEBUG( ( "dl=%d, dr=%d", dl, dr ) );
+
+  res->turn = ( diff ? sgn( diff ) : 1 ) * 255;
 }
 
 // vim:ts=2:sw=2:sts=2:et:ft=cpp

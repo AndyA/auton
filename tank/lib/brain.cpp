@@ -34,8 +34,10 @@ void Brain::update( int16_t lprox, int16_t rprox, int16_t *turn, int16_t *drive 
   res.drive = *drive;
   for ( j = 0; j < best_used; j++ )
     best[j]->apply( &ctx, &res );
-  *turn = res.turn;
-  *drive = res.drive;
+  sturn.push( res.turn );
+  sdrive.push( res.drive );
+  *turn = sturn.getMean();
+  *drive = sdrive.getMean();
 }
 
 // vim:ts=2:sw=2:sts=2:et:ft=cpp

@@ -26,12 +26,16 @@
 static Brain brain;
 static ExploreInstinct explore;
 static SteerInstinct steer;
+static StopInstinct stop;
+static EscapeInstinct escape;
 
 static int16_t turn, drive;
 
 static void init_brain() {
   brain.addInstinct( &explore );
   brain.addInstinct( &steer );
+  brain.addInstinct( &stop );
+  brain.addInstinct( &escape );
 }
 
 static void init_channel( CHANNEL ) {
@@ -41,16 +45,21 @@ static void init_channel( CHANNEL ) {
   pinMode( out_r, OUTPUT );
 }
 
+#define DRIVE_MAX 255
+#define DRIVE_MIN 100
+#define DRIVE_SCALE(x) \
+  ( ( x ) * ( DRIVE_MAX - DRIVE_MIN ) / 255 + DRIVE_MIN )
+
 static int16_t set_channel( CHANNEL, int16_t speed ) {
   speed = max( -255, min( speed, 255 ) );
 
   if ( speed < 0 ) {
     analogWrite( out_f, 0 );
-    analogWrite( out_r, -speed );
+    analogWrite( out_r, DRIVE_SCALE( -speed ) );
   }
   else {
     analogWrite( out_r, 0 );
-    analogWrite( out_f, speed );
+    analogWrite( out_f, DRIVE_SCALE( speed ) );
   }
   return speed;
 }
