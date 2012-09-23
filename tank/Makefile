@@ -15,7 +15,7 @@ ALIBS=$(wildcard $(ARDUINO_BASE)/libraries/*) $(wildcard $(ARDUINO_BASE)/librari
 APATH=$(subst $(SPACE),:,$(ALIBS))
 AINC=$(addprefix -I,$(ALIBS))
 
-VPATH = $(ARDUINO_LIB):$(APATH):common
+VPATH = $(ARDUINO_LIB):$(APATH):lib
 
 SRC =   WInterrupts.c \
 	wiring.c \
@@ -51,8 +51,8 @@ CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 
 # Place -I options here
-CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Icommon
-CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Icommon
+CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Ilib
+CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Ilib
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -210,8 +210,9 @@ clean:
 	$(TARGET).map $(TARGET).sym $(TARGET).lss $(TARGET).o $(TARGET).d core.a \
 	$(OBJ) $(LST) $(OBJ:.o=.s) $(OBJ:.o=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d) \
 	pulsedtr
+	cd tests && make clean
 
 test:
-	cd test && make test
+	cd tests && make test
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter test
