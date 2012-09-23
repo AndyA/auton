@@ -32,16 +32,14 @@ static void init_brain() {
   brain.addInstinct( &explore );
 }
 
-static void
-init_channel( CHANNEL ) {
+static void init_channel( CHANNEL ) {
   pinMode( in_f, INPUT );
   pinMode( in_r, INPUT );
   pinMode( out_f, OUTPUT );
   pinMode( out_r, OUTPUT );
 }
 
-static int16_t
-set_channel( CHANNEL, int16_t speed ) {
+static int16_t set_channel( CHANNEL, int16_t speed ) {
   speed = max( -255, min( speed, 255 ) );
 
   if ( speed < 0 ) {
@@ -55,8 +53,7 @@ set_channel( CHANNEL, int16_t speed ) {
   return speed;
 }
 
-void
-setup( ) {
+void setup( ) {
 //  Serial.begin( 38400 );
   pinMode( CONTROL_MODE, INPUT );
   init_channel( LEFT );
@@ -64,8 +61,7 @@ setup( ) {
   init_brain();
 }
 
-void
-loop( ) {
+void loop( ) {
   uint16_t lprox = analogRead( RANGE_L );
   uint16_t rprox = analogRead( RANGE_R );
 
@@ -74,15 +70,10 @@ loop( ) {
   set_channel( LEFT, drive - turn );
   set_channel( RIGHT, drive + turn );
 
-//  Serial.print( ldrive );
-//  Serial.print( "," );
-//  Serial.println( rdrive );
-
   delay( 40 );
 }
 
-int
-main( void ) {
+int main( void ) {
   init( );
   setup( );
   for ( ;; ) {
