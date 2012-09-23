@@ -15,7 +15,7 @@ DEPS=$(OBJS:.o=.d)
 test: $(TESTS)
 	prove -e '' $(addprefix ./,$(TESTS))
 
-01_observation.T: observation.o imath.o
+20_observation.T: observation.o imath.o
 
 %.T: %.o $(COMOBJ)
 	$(CC) -o $@ $^
