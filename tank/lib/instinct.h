@@ -7,10 +7,19 @@
 #include <stdint.h>
 
 class Context {
-private:
+public:
   Observation <int16_t, 50> lprox, rprox, turn, drive;
 public:
   void update( int16_t lprox, int16_t rprox, int16_t turn, int16_t drive );
+  int16_t getProx();
+};
+
+class Capacitor {
+private:
+  int32_t energy;
+public:
+  void charge( int32_t e );
+  void discharge( int16_t *sink, int16_t max );
 };
 
 class Insight {
@@ -22,8 +31,8 @@ class Instinct {
 private:
   Instinct *next;
 public:
-  virtual uint8_t consider( const Context *ctx ) = 0;
-  virtual void apply( const Context *ctx, Insight *res ) = 0;
+  virtual uint8_t consider( Context *ctx ) = 0;
+  virtual void apply( Context *ctx, Insight *res ) = 0;
   void setNext( Instinct *i ) {
     next = i;
   }
@@ -34,14 +43,16 @@ public:
 
 class ExploreInstinct: public Instinct {
 public:
-  virtual uint8_t consider( const Context *ctx );
-  virtual void apply( const Context *ctx, Insight *res );
+  virtual uint8_t consider( Context *ctx );
+  virtual void apply( Context *ctx, Insight *res );
 };
 
 class SteerInstinct: public Instinct {
+private:
+  Capacitor cap;
 public:
-  virtual uint8_t consider( const Context *ctx );
-  virtual void apply( const Context *ctx, Insight *res );
+  virtual uint8_t consider( Context *ctx );
+  virtual void apply( Context *ctx, Insight *res );
 };
 
 #endif

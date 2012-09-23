@@ -15,7 +15,7 @@ static void init_brain() {
 static void test_brain() {
   int16_t turn = 10, drive = 0;
   brain.update( 0, 0, &turn, &drive );
-  is( turn, 10, "turn not changed" );
+  is( turn, 0, "turn zero" );
   is( drive, 255, "full speed ahead" );
 }
 

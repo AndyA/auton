@@ -1,24 +1,23 @@
 #include "instinct.h"
-
-#ifndef max
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#endif
-#ifndef min
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#endif
-#ifndef clip
-#define clip(a, b, c) max(a, min(b, c))
-#endif
-#ifndef countof
-#define countof(a) (sizeof(a) / sizeof((a)[0]))
-#endif
-#ifndef sgn
-#define sgn(x) ((x) < 0 ? -1 : (x) > 0 ? 1 : 0)
-#endif
+#include "imath.h"
+#include "common.h"
 
 #define FAR     60
 #define NEAR    210
 #define NEUTRAL 186
+
+void Capacitor::charge( int32_t e ) {
+  if ( sgn( energy ) == sgn( e ) ) energy += e;
+  else energy = e;
+}
+
+void Capacitor::discharge( int16_t *sink, int16_t max ) {
+  int32_t e = energy;
+  if ( iabs( e ) > max ) e = e < 0 ? -max : max;
+  *sink = e;
+  energy -= e;
+  DEBUG( ( "energy=%d", energy ) );
+}
 
 void Context::update( int16_t l, int16_t r, int16_t t, int16_t d ) {
   lprox.push( l );
@@ -27,20 +26,32 @@ void Context::update( int16_t l, int16_t r, int16_t t, int16_t d ) {
   drive.push( d );
 }
 
-uint8_t ExploreInstinct::consider( const Context *ctx ) {
+int16_t Context::getProx() {
+  return max( lprox.peek( -1 ), rprox.peek( -1 ) );
+}
+
+uint8_t ExploreInstinct::consider( Context *ctx ) {
   return 1;
 }
 
-void ExploreInstinct::apply( const Context *ctx, Insight *res ) {
+void ExploreInstinct::apply( Context *ctx, Insight *res ) {
   res->drive = 255; // hit it!
 }
 
-uint8_t SteerInstinct::consider( const Context *ctx ) {
+uint8_t SteerInstinct::consider( Context *ctx ) {
   return 1;
 }
 
-void SteerInstinct::apply( const Context *ctx, Insight *res ) {
+void SteerInstinct::apply( Context *ctx, Insight *res ) {
+  int16_t dl = ctx->lprox.getDelta();
+  int16_t dr = ctx->rprox.getDelta();
+  int16_t delta = max( max( dl, dr ), 0 );
+  int16_t diff = dl - dr;
 
+  if ( ctx->getProx() > NEUTRAL && delta > 5 )
+    cap.charge( sgn( diff ) * delta * 10 );
+
+  cap.discharge( &res->turn, 255 );
 }
 
 // vim:ts=2:sw=2:sts=2:et:ft=cpp

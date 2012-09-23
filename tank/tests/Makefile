@@ -2,7 +2,7 @@
 
 VPATH = ../lib
 
-CFLAGS=-Wall -g3 -I../lib
+CFLAGS=-Wall -ggdb -I../lib
 LDFLAGS=-lc -lm -lstdc++
 
 SRC=$(wildcard *.t)
@@ -15,8 +15,12 @@ DEPS=$(OBJS:.o=.d)
 test: $(TESTS)
 	prove -e '' $(addprefix ./,$(TESTS))
 
+valgrind: $(TESTS)
+	for t in $(addprefix ./,$(TESTS)); do valgrind $$t; done
+
 10_imath.T: imath.o
 20_observation.T: observation.o imath.o
+25_capacitor.T: brain.o instinct.o observation.o imath.o
 30_brain.T: brain.o instinct.o observation.o imath.o
 
 %.T: %.o $(COMOBJ)
