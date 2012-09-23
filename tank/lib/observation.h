@@ -98,4 +98,5 @@ T Observation<T, N>::peek( int16_t ofs = 0 ) {
 }
 
 #endif
+
 // vim:ts=2:sw=2:sts=2:et:ft=cpp

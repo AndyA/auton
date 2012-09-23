@@ -38,5 +38,4 @@ void Brain::update( int16_t lprox, int16_t rprox, int16_t *turn, int16_t *drive 
   *drive = res.drive;
 }
 
-/* vim:ts=2:sw=2:sts=2:et:ft=cpp
- */
+// vim:ts=2:sw=2:sts=2:et:ft=cpp
