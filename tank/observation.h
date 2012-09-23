@@ -12,7 +12,7 @@ private:
   T ds[N];
   uint16_t pos, used;
   uint8_t dirty;
-  T mean, rms;
+  T mean, rms, min, max;
 private:
   T computeSum();
   void compute();
@@ -20,6 +20,22 @@ private:
 public:
   Observation(): pos( 0 ), used( 0 ) {}
   void push( T d );
+  T getMean() {
+    freshen();
+    return mean;
+  }
+  T getRMS() {
+    freshen();
+    return rms;
+  }
+  T getMin() {
+    freshen();
+    return min;
+  }
+  T getMax() {
+    freshen();
+    return max;
+  }
 };
 
 template <class T, int N>
@@ -41,6 +57,13 @@ void Observation<T, N>::compute( ) {
   for ( i = 0; i < N; i++ ) {
     T dd = ds[i] - mean;
     ms += dd * dd;
+    if ( i == 0 ) {
+      min = max = ds[i];
+    }
+    else {
+      if ( ds[i] < min ) min = ds[i];
+      if ( ds[i] > max ) max = ds[i];
+    }
   }
 
   rms = isqrt( ms / N );
