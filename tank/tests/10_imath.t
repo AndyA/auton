@@ -9,9 +9,9 @@ static void test_sqrt() {
   uint32_t i;
   for ( i = 0; i < 1000; i++ ) {
     uint32_t in = rand();
-    uint32_t want = ( uint32_t ) sqrt( i );
-    uint32_t got = isqrt( i );
-    is( got, want, "sqrt(%lu) = %lu", i, got );
+    uint32_t want = ( uint32_t ) sqrt( in );
+    uint32_t got = isqrt( in );
+    is( got, want, "sqrt(%lu) = %lu", in, got );
   }
 }
 
