@@ -16,7 +16,6 @@ void Capacitor::discharge( int16_t *sink, int16_t max ) {
   if ( iabs( e ) > max ) e = e < 0 ? -max : max;
   *sink = e;
   energy -= e;
-  DEBUG( ( "energy=%d", energy ) );
 }
 
 void Context::update( int16_t l, int16_t r, int16_t t, int16_t d ) {
