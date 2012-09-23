@@ -3,7 +3,7 @@
 VPATH = ../lib
 
 CFLAGS=-Wall -g3 -I../lib
-LDFLAGS=-lc -lm
+LDFLAGS=-lc -lm -lstdc++
 
 SRC=$(wildcard *.t)
 TESTS=$(SRC:.t=.T)
@@ -17,6 +17,7 @@ test: $(TESTS)
 
 10_imath.T: imath.o
 20_observation.T: observation.o imath.o
+30_brain.T: brain.o instinct.o observation.o imath.o
 
 %.T: %.o $(COMOBJ)
 	$(CC) $(LDFLAGS) -o $@ $^

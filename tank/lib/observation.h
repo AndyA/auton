@@ -20,6 +20,7 @@ private:
 public:
   Observation(): pos( 0 ), used( 0 ) {}
   void push( T d );
+  T peek( int16_t ofs );
   T getMean() {
     freshen();
     return mean;
@@ -35,6 +36,9 @@ public:
   T getMax() {
     freshen();
     return max;
+  }
+  T getDelta() {
+    return peek( -1 ) - getMean();
   }
 };
 
@@ -85,6 +89,13 @@ void Observation<T, N>::push( T d ) {
   dirty = 1;
 }
 
+template <class T, int N>
+T Observation<T, N>::peek( int16_t ofs = 0 ) {
+  int16_t idx = pos + ofs;
+  while ( idx >= used ) idx -= used;
+  while ( idx < 0 ) idx += used;
+  return ds[idx];
+}
+
 #endif
-/* vim:ts=2:sw=2:sts=2:et:ft=cpp
- */
+// vim:ts=2:sw=2:sts=2:et:ft=cpp

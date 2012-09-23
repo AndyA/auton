@@ -40,4 +40,5 @@ uint8_t SteerInstinct::consider( const Context *ctx ) {
 }
 
 void SteerInstinct::apply( const Context *ctx, Insight *res ) {
+
 }

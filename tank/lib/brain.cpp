@@ -1,7 +1,5 @@
 /* brain.c */
 
-#include "Arduino.h"
-
 #include "instinct.h"
 #include "brain.h"
 

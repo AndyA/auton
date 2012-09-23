@@ -11,6 +11,26 @@ static void fill( int16_t d, int n = 50 ) {
     obs.push( d );
 }
 
+static void push_peek() {
+  int i;
+  for ( i = 13; i < 17; i++ ) obs.push( i );
+  is( obs.peek( 0 ), 13, "peek 0" );
+  is( obs.peek( -1 ), 16, "peek -1" );
+  is( obs.peek( 4 ), 13, "peek 0" );
+  for ( i = 100; i < 150; i++ ) obs.push( i );
+  is( obs.peek( 0 ), 100, "peek 0" );
+  is( obs.peek( -1 ), 149, "peek -1" );
+}
+
+static void delta() {
+  fill( 100 );
+  is( obs.getDelta(), 0, "delta = 0" );
+  obs.push( 200 );
+  is( obs.getDelta(), 98, "delta = 98" );
+  obs.push( 200 );
+  is( obs.getDelta(), 96, "delta = 96" );
+}
+
 static void min_max( ) {
   fill( -1000 );
   is( obs.getMin(), -1000, "min = -1000" );
@@ -33,9 +53,11 @@ static void mean_rms() {
 
 int
 main( void ) {
-  plan( 8 );
+  plan( 16 );
+  push_peek();
   min_max();
   mean_rms();
+  delta();
   return 0;
 }
 
