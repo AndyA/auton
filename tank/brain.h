@@ -3,6 +3,17 @@
 #ifndef __BRAIN_H
 #define __BRAIN_H
 
+#include "instinct.h"
+
+class Brain {
+private:
+  Context ctx;
+  Instinct *instincts;
+public:
+  void addInstinct( Instinct * i );
+  void update( int16_t lprox, int16_t rprox, int16_t *turn, int16_t *drive);
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif

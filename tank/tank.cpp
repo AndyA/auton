@@ -1,5 +1,6 @@
 #include "Arduino.h"
 
+#include "instinct.h"
 #include "brain.h"
 
 #define IN_LF   7
@@ -22,8 +23,14 @@
 #define LEFT    IN_LF, IN_LR, OUT_LF, OUT_LR
 #define RIGHT   IN_RF, IN_RR, OUT_RF, OUT_RR
 
-static int16_t left, right;
-static int16_t speed;
+static Brain brain;
+static ExploreInstinct explore;
+
+static int16_t turn, drive;
+
+static void init_brain() {
+  brain.addInstinct( &explore );
+}
 
 static void
 init_channel( CHANNEL ) {
@@ -50,23 +57,22 @@ set_channel( CHANNEL, int16_t speed ) {
 
 void
 setup( ) {
-  Serial.begin( 38400 );
-  br_init( );
+//  Serial.begin( 38400 );
   pinMode( CONTROL_MODE, INPUT );
   init_channel( LEFT );
   init_channel( RIGHT );
+  init_brain();
 }
 
 void
 loop( ) {
   uint16_t lprox = analogRead( RANGE_L );
   uint16_t rprox = analogRead( RANGE_R );
-  int16_t ldrive, rdrive;
 
-  br_update( lprox, rprox, &ldrive, &rdrive );
+  brain.update( lprox, rprox, &turn, &drive );
 
-  set_channel( LEFT, ldrive );
-  set_channel( RIGHT, rdrive );
+  set_channel( LEFT, drive - turn );
+  set_channel( RIGHT, drive + turn );
 
 //  Serial.print( ldrive );
 //  Serial.print( "," );
