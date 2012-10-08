@@ -11,7 +11,7 @@
 
 #define TICKSPERSECOND 250
 
-PWM pwm = PWM(  );
+PWM pwm = PWM();
 
 static uint8_t nb_i[NB_SIZE];
 static uint8_t nb_o[NB_SIZE];
@@ -28,40 +28,39 @@ enum { NB_PRE, NB_MSG, NB_POST, NB_DONE };
 #define nb_gostate(st) \
   do { nb_pos = 0; nb_state = (st); } while (0)
 
-static void
-nb_init(  ) {
+static void nb_init() {
   nb_state = NB_PRE;
   nb_pos = 0;
 }
 
-ISR( SPI_STC_vect ) {
+ISR(SPI_STC_vect) {
   uint8_t c = SPDR;
-  switch ( nb_state ) {
+  switch (nb_state) {
   case NB_PRE:
-    if ( ( uint8_t ) nb_sig_start[nb_pos] != c ) {
-      nb_gostate( NB_PRE );
+    if ((uint8_t) nb_sig_start[nb_pos] != c) {
+      nb_gostate(NB_PRE);
       break;
     }
-    SPDR = ~( uint8_t ) nb_sig_start[nb_pos];
-    if ( ++nb_pos == NB_SIG_LEN ) {
-      nb_gostate( NB_MSG );
+    SPDR = ~(uint8_t) nb_sig_start[nb_pos];
+    if (++nb_pos == NB_SIG_LEN) {
+      nb_gostate(NB_MSG);
     }
     break;
   case NB_MSG:
     nb_i_tmp[nb_pos] = c;
     SPDR = nb_o[nb_pos];
-    if ( ++nb_pos == NB_SIZE ) {
-      nb_gostate( NB_POST );
+    if (++nb_pos == NB_SIZE) {
+      nb_gostate(NB_POST);
       break;
     }
     break;
   case NB_POST:
-    if ( ( uint8_t ) nb_sig_end[nb_pos] != c ) {
-      nb_gostate( NB_PRE );
+    if ((uint8_t) nb_sig_end[nb_pos] != c) {
+      nb_gostate(NB_PRE);
     }
-    SPDR = ~( uint8_t ) nb_sig_end[nb_pos];
-    if ( ++nb_pos == NB_SIG_LEN ) {
-      nb_gostate( NB_DONE );
+    SPDR = ~(uint8_t) nb_sig_end[nb_pos];
+    if (++nb_pos == NB_SIG_LEN) {
+      nb_gostate(NB_DONE);
     }
     break;
   case NB_DONE:
@@ -70,43 +69,39 @@ ISR( SPI_STC_vect ) {
   }
 }
 
-static void
-nb_poll(  ) {
+static void nb_poll() {
   uint16_t addr;
 
-  if ( nb_state != NB_DONE )
+  if (nb_state != NB_DONE)
     return;
 
   /* trigger callbacks, update primary input array */
-  for ( addr = 0; addr < NB_SIZE; addr++ ) {
-    if ( nb_i_tmp[addr] != nb_i[addr] ) {
-      if ( nb_cb[addr] )
-        nb_cb[addr] ( addr, nb_i[addr], nb_i_tmp[addr] );
+  for (addr = 0; addr < NB_SIZE; addr++) {
+    if (nb_i_tmp[addr] != nb_i[addr]) {
+      if (nb_cb[addr])
+        nb_cb[addr](addr, nb_i[addr], nb_i_tmp[addr]);
       nb_i[addr] = nb_i_tmp[addr];
     }
   }
 
-  nb_gostate( NB_PRE );
+  nb_gostate(NB_PRE);
 }
 
-static void
-nb_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
-  Serial.print( addr );
-  Serial.print( ": " );
-  Serial.print( ov );
-  Serial.print( " -> " );
-  Serial.println( nv );
+static void nb_changed(uint16_t addr, uint8_t ov, uint8_t nv) {
+  Serial.print(addr);
+  Serial.print(": ");
+  Serial.print(ov);
+  Serial.print(" -> ");
+  Serial.println(nv);
 }
 
-static void
-pwm_set( uint8_t addr, uint8_t v ) {
-  pwm.setPWM( addr, 0,
-              ( uint32_t ) v * ( SERVOMAX - SERVOMIN ) / 255 + SERVOMIN );
+static void pwm_set(uint8_t addr, uint8_t v) {
+  pwm.setPWM(addr, 0,
+             (uint32_t) v * (SERVOMAX - SERVOMIN) / 255 + SERVOMIN);
 }
 
-static void
-pwm_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
-  pwm_set( addr - NB_I_CAM_PAN, nv );
+static void pwm_changed(uint16_t addr, uint8_t ov, uint8_t nv) {
+  pwm_set(addr - NB_I_CAM_PAN, nv);
 }
 
 //static uint32_t
@@ -132,45 +127,42 @@ pwm_changed( uint16_t addr, uint8_t ov, uint8_t nv ) {
 //  TIMSK2 = ( 1 << TOIE2 );
 //}
 
-void
-setup( void ) {
+void setup(void) {
   int i;
-  Serial.begin( 9600 );
+  Serial.begin(9600);
 
 //  setup_timer(  );
 
-  pwm.begin(  );
+  pwm.begin();
 
-  pwm.setPWMFreq( 60 );
-  for ( i = 0; i < 16; i++ ) {
-    pwm_set( i, i + i * 16 );
+  pwm.setPWMFreq(60);
+  for (i = 0; i < 16; i++) {
+    pwm_set(i, i + i * 16);
   }
 
-  nb_init(  );
-  nb_register( nb_changed, 0, NB_SIZE - 1 );
-  nb_register( pwm_changed, NB_I_SERVO_START, NB_I_SERVO_END );
+  nb_init();
+  nb_register(nb_changed, 0, NB_SIZE - 1);
+  nb_register(pwm_changed, NB_I_SERVO_START, NB_I_SERVO_END);
 
-  pinMode( MISO, OUTPUT );
+  pinMode(MISO, OUTPUT);
 
-  SPCR |= _BV( SPE ) | _BV( SPIE );
+  SPCR |= _BV(SPE) | _BV(SPIE);
 }
 
-void
-loop( void ) {
-  nb_poll(  );
+void loop(void) {
+  nb_poll();
 
-  nb_o[NB_O_JOY_X] = analogRead( 0 ) >> 2;
-  nb_o[NB_O_JOY_Y] = analogRead( 1 ) >> 2;
+  nb_o[NB_O_JOY_X] = analogRead(0) >> 2;
+  nb_o[NB_O_JOY_Y] = analogRead(1) >> 2;
 
 //  nb_o[NB_O_TIMER]++;
 }
 
-int
-main( void ) {
-  init(  );
-  setup(  );
-  for ( ;; ) {
-    loop(  );
+int main(void) {
+  init();
+  setup();
+  for (;;) {
+    loop();
   }
   return 0;
 }

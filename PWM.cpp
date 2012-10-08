@@ -1,40 +1,37 @@
-/*************************************************** 
+/***************************************************
   This is a library for our Adafruit 16-channel PWM & Servo driver
 
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/products/815
 
-  These displays use I2C to communicate, 2 pins are required to  
+  These displays use I2C to communicate, 2 pins are required to
   interface. For Arduino UNOs, thats SCL -> Analog 5, SDA -> Analog 4
 
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
+  Adafruit invests time and resources providing this open source code,
+  please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
 
-  Written by Limor Fried/Ladyada for Adafruit Industries.  
+  Written by Limor Fried/Ladyada for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
 #include <PWM.h>
 #include <Wire.h>
 
-PWM::PWM( uint8_t addr ) {
+PWM::PWM(uint8_t addr) {
   _i2caddr = addr;
 }
 
-boolean
-PWM::begin( void ) {
-  Wire.begin(  );
-  reset(  );
+boolean PWM::begin(void) {
+  Wire.begin();
+  reset();
 }
 
-void
-PWM::reset( void ) {
-  write8( PCA9685_MODE1, 0x0 );
+void PWM::reset(void) {
+  write8(PCA9685_MODE1, 0x0);
 }
 
-void
-PWM::setPWMFreq( float freq ) {
+void PWM::setPWMFreq(float freq) {
   //Serial.print("Attempting to set freq ");
   //Serial.println(freq);
 
@@ -42,44 +39,41 @@ PWM::setPWMFreq( float freq ) {
   prescaleval /= 4096;
   prescaleval /= freq;
   prescaleval -= 1;
-  Serial.print( "Estimated pre-scale: " );
-  Serial.println( prescaleval );
-  uint8_t prescale = floor( prescaleval + 0.5 );
-  Serial.print( "Final pre-scale: " );
-  Serial.println( prescale );
+  Serial.print("Estimated pre-scale: ");
+  Serial.println(prescaleval);
+  uint8_t prescale = floor(prescaleval + 0.5);
+  Serial.print("Final pre-scale: ");
+  Serial.println(prescale);
 
-  uint8_t oldmode = read8( PCA9685_MODE1 );
-  uint8_t newmode = ( oldmode & 0x7F ) | 0x10;  // sleep
-  write8( PCA9685_MODE1, newmode );     // go to sleep
-  write8( PCA9685_PRESCALE, prescale ); // set the prescaler
-  write8( PCA9685_MODE1, oldmode );
-  delay( 5 );
-  write8( PCA9685_MODE1, oldmode | 0x80 );
+  uint8_t oldmode = read8(PCA9685_MODE1);
+  uint8_t newmode = (oldmode & 0x7F) | 0x10;    // sleep
+  write8(PCA9685_MODE1, newmode);       // go to sleep
+  write8(PCA9685_PRESCALE, prescale);   // set the prescaler
+  write8(PCA9685_MODE1, oldmode);
+  delay(5);
+  write8(PCA9685_MODE1, oldmode | 0x80);
   //  Serial.print("Mode now 0x"); Serial.println(read8(PCA9685_MODE1), HEX);
 }
 
-void
-PWM::setPWM( uint8_t num, uint16_t on, uint16_t off ) {
-  write8( LED0_ON_L + 4 * num, on );
-  write8( LED0_ON_H + 4 * num, on >> 8 );
-  write8( LED0_OFF_L + 4 * num, off );
-  write8( LED0_OFF_H + 4 * num, off >> 8 );
+void PWM::setPWM(uint8_t num, uint16_t on, uint16_t off) {
+  write8(LED0_ON_L + 4 * num, on);
+  write8(LED0_ON_H + 4 * num, on >> 8);
+  write8(LED0_OFF_L + 4 * num, off);
+  write8(LED0_OFF_H + 4 * num, off >> 8);
 }
 
-uint8_t
-PWM::read8( uint8_t addr ) {
-  Wire.beginTransmission( _i2caddr );
-  Wire.write( addr );
-  Wire.endTransmission(  );
+uint8_t PWM::read8(uint8_t addr) {
+  Wire.beginTransmission(_i2caddr);
+  Wire.write(addr);
+  Wire.endTransmission();
 
-  Wire.requestFrom( ( uint8_t ) _i2caddr, ( uint8_t ) 1 );
-  return Wire.read(  );
+  Wire.requestFrom((uint8_t) _i2caddr, (uint8_t) 1);
+  return Wire.read();
 }
 
-void
-PWM::write8( uint8_t addr, uint8_t d ) {
-  Wire.beginTransmission( _i2caddr );
-  Wire.write( addr );
-  Wire.write( d );
-  Wire.endTransmission(  );
+void PWM::write8(uint8_t addr, uint8_t d) {
+  Wire.beginTransmission(_i2caddr);
+  Wire.write(addr);
+  Wire.write(d);
+  Wire.endTransmission();
 }
