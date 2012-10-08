@@ -1,0 +1,6 @@
+TODO
+
+  Battery, NiMh charger
+  DC/DC converter for RaPi 5v, maybe Arduino too
+  Tacho for spinner
+  Switch from SPI to serial
