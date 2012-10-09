@@ -1,7 +1,6 @@
 TARGET = $(notdir $(CURDIR))
 PORT = /dev/ttyACM0
 AVRDUDE_PROGRAMMER = stk500v1
-AVRDUDE_BAUD = 57600
 MCU = atmega328p 
 F_CPU = 16000000L
 VARIANT = standard
@@ -75,7 +74,7 @@ LDFLAGS = -lm
 AVRDUDE_PORT = $(PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 AVRDUDE_FLAGS = -V -F -C $(AVRDUDE_CONF) \
-	-p $(MCU) -b $(AVRDUDE_BAUD) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+	-p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
 
 # Program settings
 CC = ccache $(AVR_TOOLS_PATH)/avr-gcc
