@@ -11,41 +11,56 @@ Servo spin;
 
 unsigned long last_idx;
 unsigned long period;
-unsigned int throttle = 100;
-
-unsigned long last_period, last_throttle;
+unsigned long count;
+unsigned int throttle = 0;
 
 void index_int() {
   unsigned long now = millis();
 
   period = now - last_idx;
   last_idx = now;
-
-  if (period > DESIRED && throttle < 180)
-    throttle++;
-  else if (period < DESIRED && throttle > 0)
-    throttle--;
-
-  spin.write(throttle);
+  count++;
 }
 
 void setup() {
   Serial.begin(38400);
+
   pinMode(LED, OUTPUT);
   pinMode(IDX, INPUT);
+
   spin.attach(SPIN);
   spin.write(throttle);
+
   attachInterrupt(0, index_int, FALLING);
 }
 
+unsigned long ls_millis, ls_count;
+unsigned long last_count;
+
 void loop() {
+  unsigned long now = millis();
+
   digitalWrite(LED, digitalRead(IDX) ? LOW : HIGH);
-  if (last_period != period || last_throttle != throttle) {
-    Serial.print(period);
+
+  if (count != last_count) {
+    Serial.print(count);
     Serial.print(", ");
-    Serial.println(throttle);
-    last_period = period;
-    last_throttle = throttle;
+    Serial.print(throttle);
+    Serial.print(", ");
+    Serial.println(period);
+
+    if (now - ls_millis > 20000 || count - ls_count >= 8) {
+      throttle++;
+      ls_millis = now;
+      ls_count = count;
+      if (throttle > 180) {
+        spin.write(90);
+        while (1)
+          ;
+      }
+      spin.write(throttle);
+    }
+    last_count = count;
   }
 }
 
