@@ -56,15 +56,12 @@ ISR(ADC_vect) {
 }
 
 void index_int() {
-  delayMicroseconds(250);
-  if (!digitalRead(IDX)) {
-    queue_event e;
+  queue_event e;
 
-    e.ts = millis();
-    e.type = QT_INDEX;
+  e.ts = millis();
+  e.type = QT_INDEX;
 
-    if (queue_enqueue(&q, &e)) overrun++;
-  }
+  if (queue_enqueue(&q, &e)) overrun++;
 }
 
 void setup() {
