@@ -9,7 +9,7 @@
 #define IDX 2
 #define SPIN 10
 
-#define PRESCALE 1024
+#define PRESCALE 256
 #define FREQ     200   // sample at 200Hz
 #define CHANNELS   3   // three channels
 #define ADC_REF    1
@@ -30,55 +30,59 @@ void setup_timer() {
   TCNT2  = 0;
   OCR2A = TMATCH(PRESCALE, FREQ * CHANNELS);
   TCCR2A |= (1 << WGM21);
-  TCCR2B |= (1 << CS12); // 256
+  TCCR2B |= (1 << CS22) | (1 << CS21); // 256
   TIMSK2 |= (1 << OCIE2A);
   sei();
 }
 
 ISR(TIMER2_COMPA_vect) {
-  ADMUX = (ADC_REF << 6) | channel;
-  ADCSRA = (1 << ADEN) | (1 << ADSC) | (1 << ADIE);
-
   channel++;
   if (channel == CHANNELS) channel = 0;
+
+  ADMUX = (ADC_REF << 6) | channel;
+  ADCSRA |= (1 << ADEN) | (1 << ADIE) | (1 << ADSC);
 }
 
 ISR(ADC_vect) {
   queue_event e;
-  uint8_t lo, hi;
 
   e.ts = millis();
   e.type = QT_RANGE;
 
-  e.d.rf.c = ADMUX & 0x07;
-  lo = ADCL;
-  hi = ADCH;
-  e.d.rf.r = (hi << 8) | lo;
+  e.d.rf.c = channel;
+  e.d.rf.r = ADC;
 
   if (queue_enqueue(&q, &e)) overrun++;
 }
 
 void index_int() {
-  queue_event e;
+  delayMicroseconds(250);
+  if (!digitalRead(IDX)) {
+    queue_event e;
 
-  e.ts = millis();
-  e.type = QT_INDEX;
+    e.ts = millis();
+    e.type = QT_INDEX;
 
-  if (queue_enqueue(&q, &e)) overrun++;
+    if (queue_enqueue(&q, &e)) overrun++;
+  }
 }
 
 void setup() {
-  Serial.begin(38400);
+  Serial.begin(115200);
 
   pinMode(LED, OUTPUT);
   pinMode(IDX, INPUT);
 
   spin.attach(SPIN);
   spin.write(88);
+//  spin.write(95);
 
+//#define FOO
+
+#ifndef FOO
   attachInterrupt(0, index_int, FALLING);
-
   setup_timer();
+#endif
 
   queue_empty(&q);
 }
@@ -88,11 +92,26 @@ void loop() {
 
   digitalWrite(LED, digitalRead(IDX) ? LOW : HIGH);
 
+#ifdef FOO
+  delay(100);
+  Serial.print(ADCSRA, 2);
+  Serial.print(", ");
+  Serial.print(ADCSRB, 2);
+  Serial.print(", ");
+  Serial.print(analogRead(0));
+  Serial.print(", ");
+  Serial.print(analogRead(1));
+  Serial.print(", ");
+  Serial.println(analogRead(2));
+#endif
+
   if (queue_deque(&q, &e)) {
     Serial.write("E");
     Serial.write(sizeof(e));
     Serial.write((const uint8_t *) &e, sizeof(e));
   }
+
+  delayMicroseconds(250);
 }
 
 int
