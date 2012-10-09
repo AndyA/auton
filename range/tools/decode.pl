@@ -25,6 +25,8 @@ my %DECODE = (
   },
 );
 
+my %LT = ();
+
 while () {
   my $sync = readbytes( $fh, 1 );
   last unless length $sync;
@@ -34,8 +36,10 @@ while () {
   my $buf = readbytes( $fh, $len );
   my ( $ts, $type ) = unpack 'VC', $buf;
   my $tn = $TYPE[$type];
+  my $last = defined $LT{$tn} ? sprintf '(%dms)', $ts - $LT{$tn} : '';
+  $LT{$tn} = $ts;
   my $rec = $DECODE{$tn}->( substr $buf, 5 );
-  printf "%7d %-9s %s\n", $ts, $tn, join ', ',
+  printf "%7d %10s %-9s %s\n", $ts, $last, $tn, join ', ',
    map { "$_=$rec->{$_}" } sort keys %$rec;
 }
 
