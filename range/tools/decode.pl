@@ -18,7 +18,11 @@ my %DECODE = (
   QT_RANGE => sub {
     my $buf = shift;
     my ( $val, $chan ) = unpack 'vC', $buf;
-    return { value => $val, channel => $chan };
+    return {
+      value   => $val,
+      channel => $chan,
+      range   => adc_to_range( $val ),
+    };
   },
   QT_INDEX => sub {
     return {};
@@ -42,6 +46,8 @@ while () {
   printf "%7d %10s %-9s %s\n", $ts, $last, $tn, join ', ',
    map { "$_=$rec->{$_}" } sort keys %$rec;
 }
+
+sub adc_to_range { 65 * ( $_[0] * 0.0048828125 )**-1.10 }
 
 sub readbytes {
   my ( $fh, $bytes ) = @_;
