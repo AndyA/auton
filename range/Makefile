@@ -21,7 +21,8 @@ SRC =   WInterrupts.c \
 	wiring_analog.c \
 	wiring_digital.c \
 	wiring_pulse.c \
-	wiring_shift.c
+	wiring_shift.c \
+	queue.c
 
 CXXSRC = HardwareSerial.cpp \
 	Stream.cpp \
