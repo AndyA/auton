@@ -72,7 +72,7 @@ void setup() {
 
   spin.attach(SPIN);
   spin.write(88);
-//  spin.write(95);
+//  spin.write(91);
 
 //#define FOO
 
@@ -108,6 +108,8 @@ void loop() {
     Serial.write((const uint8_t *) &e, sizeof(e));
   }
 
+  // queue_deque disables interrupts - so we need to make sure it
+  // isn't called all the time.
   delayMicroseconds(250);
 }
 
