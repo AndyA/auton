@@ -4,4 +4,11 @@ Sharp IR
   Output delayed by 5ms from end of sample period, stable for next
   sample period
 
+  With 1:1 gearing the maximum speed is around 400ms/rev.
+  Speed control lacks resolution - hunts between two adjacent PWM
+  settings which result in a ~10% speed change.
 
+  Possible solutions
+    Higher resolution servo control
+    More timing slots in rotor
+    Dither the servo control - switch mid resolution
