@@ -17,7 +17,9 @@ for my $freq ( @ARGV ) {
   print "PRE  MATCH FREQ\n";
   for my $pre ( @PRESCALE ) {
     my $match = match( $pre, $freq );
-    printf "%4d %5d %8.3f\n", $pre, $match, freq( $pre, $match );
+    if ( $match < 65536 ) {
+      printf "%4d %5d %8.3f\n", $pre, $match, freq( $pre, $match );
+    }
   }
 }
 
