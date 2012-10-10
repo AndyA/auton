@@ -77,7 +77,7 @@ void setup() {
 
   spin.attach(SPIN);
   spin.write(88);
-//  spin.write(94);
+//  spin.write(95);
 
 //#define FOO
 
