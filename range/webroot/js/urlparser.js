@@ -4,7 +4,7 @@ function URLParser(url, args) {
 
 URLParser.prototype = {
   parse: function(url, args) {
-    var url_re = new RegExp('^([a-z]+)://([^/]*)(/[^?]*)?(\\?.*?)?(#.*)?$');
+    var url_re = new RegExp('^([a-z]+)://([^/]*)(/[^?#]*)?(\\?.*?)?(#.*)?$');
     var rs = url_re.exec(url);
     if (rs == null) {
       throw "Bad URL";
