@@ -40,7 +40,7 @@ $(function() {
   function plot_orbit(elt, data, idx, opt) {
     var ctx = elt.getContext('2d');
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     ctx.translate(WIDTH / 2, HEIGHT / 2);
     ctx.scale(opt.zoom, opt.zoom);
@@ -49,7 +49,7 @@ $(function() {
 
     var phase = 2 * Math.PI / 3;
     var ps = [0, phase, phase * 2];
-    var st = ['rgba(255, 0, 255, 0.1)', 'rgba(255, 255, 0, 0.1)', 'rgba(0, 255, 255, 0.1)'];
+    var st = ['rgba(255, 0, 255, 0.2)', 'rgba(255, 255, 0, 0.2)', 'rgba(0, 255, 255, 0.2)'];
 
     ctx.fillStyle = 'black';
     ctx.fillRect(-4, -5, 8, 10);
