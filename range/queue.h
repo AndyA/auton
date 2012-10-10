@@ -4,6 +4,7 @@
 #define __QUEUE_H
 
 #include <stdint.h>
+#include "event.h"
 
 #ifndef QUEUE_SIZE
 #define QUEUE_SIZE 10
@@ -13,24 +14,7 @@
 extern "C" {
 #endif
 
-  enum {
-    QT_RANGE,
-    QT_INDEX
-  };
-
-  typedef struct {
-    uint32_t ts;
-    uint8_t type;
-    union {
-      struct {
-        uint16_t r;
-        uint8_t c;
-      } rf;
-      struct {
-        /* empty */
-      } idx;
-    } d;
-  } queue_event;
+  typedef struct event queue_event;
 
   typedef struct {
     uint8_t in, out, full;

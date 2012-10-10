@@ -14,7 +14,7 @@ ALIBS=$(wildcard $(ARDUINO_BASE)/libraries/*) $(wildcard $(ARDUINO_BASE)/librari
 APATH=$(subst $(SPACE),:,$(ALIBS))
 AINC=$(addprefix -I,$(ALIBS))
 
-VPATH = $(ARDUINO_LIB):$(APATH):common
+VPATH = $(ARDUINO_LIB):$(APATH):../common
 
 SRC =   WInterrupts.c \
 	wiring.c \
@@ -51,8 +51,8 @@ CDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 CXXDEFS = -DF_CPU=$(F_CPU) -DARDUINO=101 -DUSB_PID=null -DUSB_VID=null
 
 # Place -I options here
-CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Icommon
-CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -Icommon
+CINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -I../common
+CXXINCS = -I$(ARDUINO_LIB) -I$(ARDUINO_INC) $(AINC) -I../common
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
