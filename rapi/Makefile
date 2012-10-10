@@ -5,20 +5,21 @@ VPATH = ../common
 CFLAGS=-Wall -g3 -I../common
 LDFLAGS=-lc -lm -lpthread
 
-BINS=spi
-OBJS=spi.o queue.o event.o util.o noticeboard.o
+BINS=spi sounder
+BINOBJS=$(addsuffix .o,$(BINS))
+MISCOBJS=util.o
+SPIOBJS=queue.o event.o noticeboard.o
+OBJS=$(BINOBJS) $(MISCOBJS) $(SPIOBJS)
 DEPS=$(OBJS:.o=.d) 
 
 all: $(BINS)
 
-spi: $(OBJS)
+spi: $(SPIOBJS)
+
+%: %.o $(MISCOBJS)
+	cc -o $@ $^ $(LDFLAGS)
 
 %.d: %.c
-	@$(SHELL) -ec '$(CC) -MM $(CFLAGS) $< \
-	| sed '\''s/\($*\)\.o[ :]*/\1.o $@ : /g'\'' > $@; \
-	[ -s $@ ] || rm -f $@'
-
-%.d: %.C
 	@$(SHELL) -ec '$(CC) -MM $(CFLAGS) $< \
 	| sed '\''s/\($*\)\.o[ :]*/\1.o $@ : /g'\'' > $@; \
 	[ -s $@ ] || rm -f $@'
@@ -30,4 +31,3 @@ tags:
 
 clean:
 	rm -f $(OBJS) $(DEPS) $(BINS) tags
-
