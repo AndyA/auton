@@ -19,3 +19,37 @@ body {
 .button a:hover {
   background: #666;
 }
+
+#display, #picker {
+  float: left;
+  display: inline;
+}
+
+#picker {
+  background: #ddd;
+  margin: 0 1em;
+  padding: 0.5em 0.5em;
+}
+
+#picker ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#picker ul li {
+  margin: 0.3em 0.5em;
+  padding: 0.2em 0.5em;
+  font-weight: bold;
+  background: #aaa;
+}
+
+#picker ul li:hover {
+  background: #888;
+}
+
+#picker ul li a {
+  text-decoration: none;
+  color: black;
+}
+

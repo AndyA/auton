@@ -1,0 +1,22 @@
+[
+   {
+      "desc" : "Wall, hat and pole",
+      "url" : "data/wall-and-hat.json"
+   },
+   {
+      "desc" : "Fast scan",
+      "url" : "data/fast.json"
+   },
+   {
+      "desc" : "Another fast scan",
+      "url" : "data/fast2.json"
+   },
+   {
+      "desc" : "More stuff going on",
+      "url" : "data/more.json"
+   },
+   {
+      "desc" : "Slow scan",
+      "url" : "data/slow1.json"
+   }
+]

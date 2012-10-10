@@ -4,6 +4,7 @@ $(function() {
 
   var WIDTH = 650;
   var HEIGHT = 650;
+  var MANIFEST = 'data/manifest.json';
 
   var sensor = {
     a: 5461,
@@ -147,11 +148,28 @@ $(function() {
     plot_orbit(scanner, dataset, curpage, opt);
   }
 
-  $.getJSON('orbits.json', function(data) {
-    curpage = 0;
-    dataset = data;
-    plot_orbit(scanner, dataset, curpage, opt);
-  });
+  function load_manifest(manifest) {
+    $.getJSON(manifest, function(data) {
+      var $pl = $('#picker ul');
+      var url = new URLParser(window.location.href, {});
+
+      $.each(data, function(k, v) {
+        $pl.append($('<li>').append($('<a>', {
+          text: v.desc
+        }).attr({
+          href: url.parts.scheme + '://' + url.parts.host + url.parts.path + '?data=' + v.url
+        })));
+      });
+
+      var df = "data" in url.args ? url.args.data : data[0].url;
+
+      $.getJSON(df, function(data) {
+        curpage = 0;
+        dataset = data;
+        plot_orbit(scanner, dataset, curpage, opt);
+      });
+    });
+  }
 
   $('#first').click(first);
   $('#prev').click(prev);
@@ -161,4 +179,5 @@ $(function() {
   $('#in').click(zoom_in);
   $('#out').click(zoom_out);
 
+  load_manifest(MANIFEST);
 });

@@ -3,12 +3,19 @@
   <head>
     <title>Scanner</title>
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/urlparser.js"></script>
     <script type="text/javascript" src="js/scanner.js"></script>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <canvas id="scanner" width="650" height="650" >
-    </canvas>
+    <div id="display">
+      <canvas id="scanner" width="650" height="650" >
+      </canvas>
+    </div>
+    <div id="picker">
+      <ul></ul>
+    </div>
+    <br clear="all" />
     <div id="transport">
       <span class="button"><a id="first" href="#">first</a></span>
       <span class="button"><a id="prev" href="#">prev</a></span>
