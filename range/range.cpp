@@ -14,6 +14,8 @@
 #define CHANNELS   3   // three channels
 #define ADC_REF    1
 
+#define MIN_IDX  (1000/4)
+
 Servo spin;
 
 static uint8_t overrun;
@@ -57,11 +59,14 @@ ISR(ADC_vect) {
 
 void index_int() {
   queue_event e;
+  static uint32_t last_ts;
 
   e.ts = millis();
-  e.type = QT_INDEX;
-
-  if (queue_enqueue(&q, &e)) overrun++;
+  if (e.ts - last_ts > MIN_IDX) {
+    e.type = QT_INDEX;
+    if (queue_enqueue(&q, &e)) overrun++;
+    last_ts = e.ts;
+  }
 }
 
 void setup() {
