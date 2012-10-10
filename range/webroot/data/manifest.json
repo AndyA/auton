@@ -4,6 +4,10 @@
       "url" : "data/wall-and-hat.json"
    },
    {
+      "desc" : "Variable speed",
+      "url" : "data/varispeed.json"
+   },
+   {
       "desc" : "Fast scan",
       "url" : "data/fast.json"
    },
