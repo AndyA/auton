@@ -16,7 +16,8 @@ $(function() {
 
   var opt = {
     zoom: 5,
-    normalise: false
+    normalise: false,
+    clip: 70
   };
 
   function range_to_distance(r, s) {
@@ -48,7 +49,7 @@ $(function() {
 
     var phase = 2 * Math.PI / 3;
     var ps = [0, phase, phase * 2];
-    var st = ['rgba(128, 0, 0, 0.4)', 'rgba(0, 128, 0, 0.4)', 'rgba(0, 0, 128, 0.4)'];
+    var st = ['rgba(255, 0, 255, 0.1)', 'rgba(255, 255, 0, 0.1)', 'rgba(0, 255, 255, 0.1)'];
 
     ctx.fillStyle = 'black';
     ctx.fillRect(-4, -5, 8, 10);
@@ -63,7 +64,9 @@ $(function() {
       var series = set.data[ds];
       points[ds] = [];
       for (var dp = 0; dp < series.length; dp++) {
-        points[ds][dp] = range_to_distance(series[dp][1], sensor);
+        var r = range_to_distance(series[dp][1], sensor);
+        if (r > opt.clip) r = opt.clip;
+        points[ds][dp] = r;
       }
     }
 
