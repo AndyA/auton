@@ -1,0 +1,21 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#transport {
+  background: black;
+  margin: 1em;
+  padding: 1em;
+}
+
+.button a {
+  margin: 0.2em 0.1em;
+  padding: 0.2em 1em;
+  background: #333;
+  text-decoration: none;
+  color: white;
+}
+
+.button a:hover {
+  background: #666;
+}
