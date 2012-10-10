@@ -14,37 +14,72 @@ $(function() {
   var curpage;
   var dataset;
 
+  var opt = {
+    zoom: 5,
+    normalise: false
+  };
+
   function range_to_distance(r, s) {
-    if (r + s.b <= 0) return -1;
+    if (r + s.b <= 0) return NaN;
     return s.a / (r + s.b) - s.k;
   }
 
-  function plot_orbit(elt, data, idx) {
+  function avg(ar) {
+    var t = 0;
+    var c = 0;
+    for (var i = 0; i < ar.length; i++) {
+      if (!isNaN(ar[i])) {
+        t += ar[i];
+        c++;
+      }
+    }
+    return t / c;
+  }
+
+  function plot_orbit(elt, data, idx, opt) {
     var ctx = elt.getContext('2d');
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     ctx.translate(WIDTH / 2, HEIGHT / 2);
+    ctx.scale(opt.zoom, opt.zoom);
 
     var set = data[idx];
 
     var phase = 2 * Math.PI / 3;
     var ps = [0, phase, phase * 2];
-    var st = ['rgba(128, 0, 0, 0.6)', 'rgba(0, 128, 0, 0.6)', 'rgba(0, 0, 128, 0.6)'];
+    var st = ['rgba(128, 0, 0, 0.4)', 'rgba(0, 128, 0, 0.4)', 'rgba(0, 0, 128, 0.4)'];
 
     ctx.fillStyle = 'black';
-    ctx.fillRect(-5, -10, 10, 20);
+    ctx.fillRect(-4, -5, 8, 10);
 
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 0.3;
     ctx.lineJoin = 'round';
+
+    var scale = [1, 1, 1];
+
+    var points = [];
+    for (var ds = 0; ds < 3; ds++) {
+      var series = set.data[ds];
+      points[ds] = [];
+      for (var dp = 0; dp < series.length; dp++) {
+        points[ds][dp] = range_to_distance(series[dp][1], sensor);
+      }
+    }
+
+    if (opt.normalise) {
+      var ds, savg = [];
+      for (ds = 0; ds < 3; ds++) savg[ds] = avg(points[ds]);
+      var tavg = avg(savg);
+      for (ds = 0; ds < 3; ds++) scale[ds] = tavg / savg[ds];
+    }
 
     for (var ds = 0; ds < 3; ds++) {
       ctx.beginPath();
       var series = set.data[ds];
       for (var dp = 0; dp < series.length; dp++) {
         var ts = series[dp][0];
-        var vv = series[dp][1];
-        var d = range_to_distance(vv, sensor) * 3;
+        var d = points[ds][dp] * scale[ds];
         if (d >= 0) {
           var a = 2 * Math.PI * ts / set.duration + ps[ds];
           var x = Math.sin(a) * d;
@@ -53,8 +88,10 @@ $(function() {
           else ctx.lineTo(x, y);
         }
       }
-      ctx.strokeStyle = st[ds];
-      console.log(ctx.strokeStyle);
+      ctx.closePath();
+      ctx.strokeStyle = 'black';
+      ctx.fillStyle = st[ds];
+      ctx.fill();
       ctx.stroke();
     }
     ctx.restore();
@@ -63,21 +100,21 @@ $(function() {
   function first() {
     pause();
     curpage = 0;
-    plot_orbit(scanner, dataset, curpage);
+    plot_orbit(scanner, dataset, curpage, opt);
   }
 
   function next() {
     pause();
     if (curpage < dataset.length - 1) curpage++;
     else curpage = 0;
-    plot_orbit(scanner, dataset, curpage);
+    plot_orbit(scanner, dataset, curpage, opt);
   }
 
   function prev() {
     pause();
     if (curpage > 0) curpage--;
     else curpage = dataset.length - 1;
-    plot_orbit(scanner, dataset, curpage);
+    plot_orbit(scanner, dataset, curpage, opt);
   }
 
   var timer;
@@ -97,10 +134,20 @@ $(function() {
     timer = null;
   }
 
+  function zoom_in() {
+    opt.zoom *= 1.2;
+    plot_orbit(scanner, dataset, curpage, opt);
+  }
+
+  function zoom_out() {
+    opt.zoom /= 1.2;
+    plot_orbit(scanner, dataset, curpage, opt);
+  }
+
   $.getJSON('orbits.json', function(data) {
     curpage = 0;
     dataset = data;
-    plot_orbit(scanner, dataset, curpage);
+    plot_orbit(scanner, dataset, curpage, opt);
   });
 
   $('#first').click(first);
@@ -108,5 +155,7 @@ $(function() {
   $('#next').click(next);
   $('#play').click(play);
   $('#pause').click(pause);
+  $('#in').click(zoom_in);
+  $('#out').click(zoom_out);
 
 });
