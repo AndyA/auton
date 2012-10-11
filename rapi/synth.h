@@ -9,10 +9,12 @@ typedef struct {
   uint32_t rate;
   uint32_t phase;
   uint32_t phase_increment;
+  uint16_t amplitude;
 } synth;
 
 void synth_set_rate(synth *sy, uint32_t rate);
 void synth_set_frequency(synth *sy, uint32_t hz);
+void synth_set_amplitude(synth *sy, uint16_t amp);
 
 int16_t synth_sin(synth *sy);
 

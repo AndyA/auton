@@ -4,7 +4,7 @@
 #define __QUEUE_H
 
 #include <stdint.h>
-#include "event.h"
+#include "eventdef.h"
 
 #ifndef QUEUE_SIZE
 #define QUEUE_SIZE 10

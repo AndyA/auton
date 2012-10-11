@@ -46,7 +46,13 @@ static void *reader_worker(void *arg) {
     sn = ev.d.rf.c;
     vv = ev.d.rf.r;
     if (sn < SENSORS) {
-      synth_set_frequency(&sy[sn], vv * 2);
+      if (vv < 200) {
+        synth_set_amplitude(&sy[sn], 0);
+      }
+      else {
+        synth_set_amplitude(&sy[sn], 0xffff);
+        synth_set_frequency(&sy[sn], vv * 3);
+      }
     }
   }
 #endif
@@ -104,15 +110,17 @@ static void *sounder_worker(void *arg) {
   while (1) {
     int16_t *bp = buffer;
     for (i = 0; i < frames; i++) {
-      int32_t sample = 0;
+      int32_t left = 0, right = 0, scale = 0;
       pthread_mutex_lock(&sy_mutex);
       for (j = 0; j < SENSORS; j++) {
-        sample += synth_sin(&sy[j]);
+        int32_t sample = synth_sin(&sy[j]);
+        left += (j + 1) * sample;
+        right += (SENSORS - j) * sample;
+        scale += j + 1;
       }
       pthread_mutex_unlock(&sy_mutex);
-      sample /= SENSORS;
-      *bp++ = (int16_t) sample;
-      *bp++ = (int16_t) sample;
+      *bp++ = (int16_t)(left / scale);
+      *bp++ = (int16_t)(right / scale);
     }
 
     rc = snd_pcm_writei(snd, buffer, frames);
