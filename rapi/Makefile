@@ -3,7 +3,7 @@
 VPATH = ../common
 
 CFLAGS=-Wall -g3 -I../common
-LDFLAGS=-lc -lpthread -lasound
+LDFLAGS=-lc -lm -lpthread -lasound
 
 BINS=spi sounder
 BINOBJS=$(addsuffix .o,$(BINS))

@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define ALSA_PCM_NEW_HW_PARAMS_API
 #include <alsa/asoundlib.h>
@@ -39,8 +40,11 @@ static void *reader_worker(void *arg) {
         synth_set_amplitude(&sy[sn], 0);
       }
       else {
+        // Oops, FP:
+        uint16_t hz = (uint32_t)(440 * pow(2, (double)(vv - 200) / 160));
         synth_set_amplitude(&sy[sn], 0xffff);
-        synth_set_frequency(&sy[sn], vv * 3);
+
+        synth_set_frequency(&sy[sn], hz);
       }
     }
   }
