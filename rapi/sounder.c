@@ -21,17 +21,6 @@ static synth sy[SENSORS];
 static pthread_mutex_t sy_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void *reader_worker(void *arg) {
-#if 0
-  int i, f;
-  while (1) {
-    for (i = 0; i < SENSORS; i++) {
-      pthread_mutex_lock(&sy_mutex);
-      synth_set_frequency(&sy[i], rand() % 3000 + 50);
-      pthread_mutex_unlock(&sy_mutex);
-      usleep(100000);
-    }
-  }
-#else
   while (1) {
     struct event ev;
     ssize_t rc;
@@ -55,7 +44,6 @@ static void *reader_worker(void *arg) {
       }
     }
   }
-#endif
   return NULL;
 }
 
@@ -123,16 +111,8 @@ static void *sounder_worker(void *arg) {
       *bp++ = (int16_t)(right / scale);
     }
 
-    rc = snd_pcm_writei(snd, buffer, frames);
-    if (rc == -EPIPE) {
-      snd_pcm_prepare(snd);
-    }
-    else if (rc < 0) {
+    if (rc = snd_pcm_writei(snd, buffer, frames), rc < 0)
       die("Playback error: %s", snd_strerror(rc));
-    }
-    else if (rc != (int)frames) {
-      fprintf(stderr, "short write, write %d frames\n", rc);
-    }
   }
 
   snd_pcm_drain(snd);
