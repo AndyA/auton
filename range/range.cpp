@@ -76,15 +76,11 @@ void setup() {
   pinMode(IDX, INPUT);
 
   spin.attach(SPIN);
-  spin.write(88);
-//  spin.write(95);
+//  spin.write(88);
+  spin.write(97);
 
-//#define FOO
-
-#ifndef FOO
   attachInterrupt(0, index_int, FALLING);
   setup_timer();
-#endif
 
   queue_empty(&q);
 }
@@ -93,19 +89,6 @@ void loop() {
   queue_event e;
 
   digitalWrite(LED, digitalRead(IDX) ? LOW : HIGH);
-
-#ifdef FOO
-  delay(100);
-  Serial.print(ADCSRA, 2);
-  Serial.print(", ");
-  Serial.print(ADCSRB, 2);
-  Serial.print(", ");
-  Serial.print(analogRead(0));
-  Serial.print(", ");
-  Serial.print(analogRead(1));
-  Serial.print(", ");
-  Serial.println(analogRead(2));
-#endif
 
   if (queue_deque(&q, &e)) {
     Serial.write("E");

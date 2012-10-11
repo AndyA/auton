@@ -1,115 +1,152 @@
 /* sounder.c */
 
 #include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #define ALSA_PCM_NEW_HW_PARAMS_API
 #include <alsa/asoundlib.h>
 
+#include "eventio.h"
+#include "synth.h"
 #include "util.h"
 
-int main() {
-  long loops;
-  int rc;
-  int size;
-  snd_pcm_t *handle;
-  snd_pcm_hw_params_t *params;
+#define RATE      48000
+#define CHANNELS  2
+
+#define SENSORS   3
+
+static synth sy[SENSORS];
+static pthread_mutex_t sy_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void *reader_worker(void *arg) {
+#if 0
+  int i, f;
+  while (1) {
+    for (i = 0; i < SENSORS; i++) {
+      pthread_mutex_lock(&sy_mutex);
+      synth_set_frequency(&sy[i], rand() % 3000 + 50);
+      pthread_mutex_unlock(&sy_mutex);
+      usleep(100000);
+    }
+  }
+#else
+  while (1) {
+    struct event ev;
+    ssize_t rc;
+    uint8_t sn;
+    uint16_t vv;
+
+    rc = evio_read(0, &ev);
+    if (rc < 0) die("I/O error: %ld", rc);
+    if (rc == 0) break;
+
+    if (ev.type != QT_RANGE) continue;
+    sn = ev.d.rf.c;
+    vv = ev.d.rf.r;
+    if (sn < SENSORS) {
+      synth_set_frequency(&sy[sn], vv * 2);
+    }
+  }
+#endif
+  return NULL;
+}
+
+static void synth_init(void) {
+  int s;
+  for (s = 0; s < SENSORS; s++) {
+    synth_set_rate(&sy[s], RATE);
+    synth_set_frequency(&sy[s], 440);
+  }
+}
+
+static snd_pcm_t *sounder_init(snd_pcm_uframes_t *frames) {
+  int rc, dir;
   unsigned int val;
-  int dir;
-  snd_pcm_uframes_t frames;
-  char *buffer;
+  snd_pcm_t *snd;
+  snd_pcm_hw_params_t *params;
 
-  /* Open PCM device for playback. */
-  rc = snd_pcm_open(&handle, "default",
-                    SND_PCM_STREAM_PLAYBACK, 0);
-  if (rc < 0) {
-    fprintf(stderr,
-            "unable to open pcm device: %s\n",
-            snd_strerror(rc));
-    exit(1);
-  }
+  if ((rc = snd_pcm_open(&snd, "default", SND_PCM_STREAM_PLAYBACK, 0)) < 0)
+    die("Unable to open PCM device: %s", snd_strerror(rc));
 
-  /* Allocate a hardware parameters object. */
   snd_pcm_hw_params_alloca(&params);
+  snd_pcm_hw_params_any(snd, params);
 
-  /* Fill it in with default values. */
-  snd_pcm_hw_params_any(handle, params);
+  snd_pcm_hw_params_set_access(snd, params, SND_PCM_ACCESS_RW_INTERLEAVED);
+  snd_pcm_hw_params_set_format(snd, params, SND_PCM_FORMAT_S16_LE);
+  snd_pcm_hw_params_set_channels(snd, params, CHANNELS);
 
-  /* Set the desired hardware parameters. */
+  val = RATE;
+  snd_pcm_hw_params_set_rate_near(snd, params, &val, &dir);
 
-  /* Interleaved mode */
-  snd_pcm_hw_params_set_access(handle, params,
-                               SND_PCM_ACCESS_RW_INTERLEAVED);
+  *frames = 1024;
+  snd_pcm_hw_params_set_period_size_near(snd, params, frames, &dir);
 
-  /* Signed 16-bit little-endian format */
-  snd_pcm_hw_params_set_format(handle, params,
-                               SND_PCM_FORMAT_S16_LE);
+  if ((rc = snd_pcm_hw_params(snd, params)) < 0)
+    die("Can't set hardware parameters: %s", snd_strerror(rc));
 
-  /* Two channels (stereo) */
-  snd_pcm_hw_params_set_channels(handle, params, 2);
+  snd_pcm_hw_params_get_period_size(params, frames, &dir);
 
-  /* 44100 bits/second sampling rate (CD quality) */
-  val = 44100;
-  snd_pcm_hw_params_set_rate_near(handle, params,
-                                  &val, &dir);
+  return snd;
+}
 
-  /* Set period size to 32 frames. */
-  frames = 32;
-  snd_pcm_hw_params_set_period_size_near(handle,
-                                         params, &frames, &dir);
+static void *sounder_worker(void *arg) {
+  snd_pcm_uframes_t frames;
+  int i, j, rc;
+  snd_pcm_t *snd;
+  int16_t *buffer;
 
-  /* Write the parameters to the driver */
-  rc = snd_pcm_hw_params(handle, params);
-  if (rc < 0) {
-    fprintf(stderr,
-            "unable to set hw parameters: %s\n",
-            snd_strerror(rc));
-    exit(1);
-  }
+  synth_init();
+  snd = sounder_init(&frames);
+  buffer = alloc(frames * sizeof(int16_t) * CHANNELS);
 
-  /* Use a buffer large enough to hold one period */
-  snd_pcm_hw_params_get_period_size(params, &frames,
-                                    &dir);
-  size = frames * 4; /* 2 bytes/sample, 2 channels */
-  buffer = (char *) malloc(size);
-
-  /* We want to loop for 5 seconds */
-  snd_pcm_hw_params_get_period_time(params,
-                                    &val, &dir);
-  /* 5 seconds in microseconds divided by
-   * period time */
-  loops = 5000000 / val;
-
-  while (loops > 0) {
-    loops--;
-    rc = read(0, buffer, size);
-    if (rc == 0) {
-      fprintf(stderr, "end of file on input\n");
-      break;
+  while (1) {
+    int16_t *bp = buffer;
+    for (i = 0; i < frames; i++) {
+      int32_t sample = 0;
+      pthread_mutex_lock(&sy_mutex);
+      for (j = 0; j < SENSORS; j++) {
+        sample += synth_sin(&sy[j]);
+      }
+      pthread_mutex_unlock(&sy_mutex);
+      sample /= SENSORS;
+      *bp++ = (int16_t) sample;
+      *bp++ = (int16_t) sample;
     }
-    else if (rc != size) {
-      fprintf(stderr,
-              "short read: read %d bytes\n", rc);
-    }
-    rc = snd_pcm_writei(handle, buffer, frames);
+
+    rc = snd_pcm_writei(snd, buffer, frames);
     if (rc == -EPIPE) {
-      /* EPIPE means underrun */
-      fprintf(stderr, "underrun occurred\n");
-      snd_pcm_prepare(handle);
+      snd_pcm_prepare(snd);
     }
     else if (rc < 0) {
-      fprintf(stderr,
-              "error from writei: %s\n",
-              snd_strerror(rc));
+      die("Playback error: %s", snd_strerror(rc));
     }
     else if (rc != (int)frames) {
-      fprintf(stderr,
-              "short write, write %d frames\n", rc);
+      fprintf(stderr, "short write, write %d frames\n", rc);
     }
   }
 
-  snd_pcm_drain(handle);
-  snd_pcm_close(handle);
+  snd_pcm_drain(snd);
+  snd_pcm_close(snd);
   free(buffer);
+  return NULL;
+}
+
+int main() {
+  pthread_t sounder, reader;
+  void *rv;
+
+  if (pthread_create(&sounder, NULL, sounder_worker, NULL) < 0) {
+    die("Thread creation failed: %s", strerror(errno));
+  }
+  if (pthread_create(&reader, NULL, reader_worker, NULL) < 0) {
+    die("Thread creation failed: %s", strerror(errno));
+  }
+
+  pthread_join(reader, &rv);
+  pthread_join(sounder, &rv);
+  pthread_exit(NULL);
 
   return 0;
 }
