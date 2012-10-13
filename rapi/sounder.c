@@ -56,6 +56,7 @@ static void synth_init(void) {
   for (s = 0; s < SENSORS; s++) {
     synth_set_rate(&sy[s], RATE);
     synth_set_frequency(&sy[s], 440);
+    synth_set_amplitude(&sy[s], 0);
   }
 }
 
