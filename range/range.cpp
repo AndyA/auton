@@ -102,7 +102,8 @@ static void set_speed(uint16_t sp) {
 
 void calibration_loop() {
   queue_event e;
-  for (int sp = 88; sp <= 180; sp++) {
+  uint8_t ls = 0;
+  for (int sp = 0; sp <= 180; sp++) {
     uint32_t start = millis();
     uint8_t revs = 0;
     set_speed(sp);
@@ -111,7 +112,11 @@ void calibration_loop() {
       delayMicroseconds(250);
       if (queue_deque(&q, &e)) {
         send_event(&e);
-        if (e.type == QT_INDEX) revs++;
+        if (e.type == QT_INDEX) {
+          revs++;
+          ls = !ls;
+          digitalWrite(LED, ls);
+        }
       }
     }
   }
@@ -133,8 +138,8 @@ main(void) {
   init();
   setup();
   for (;;) {
-    calibration_loop();
-//    loop();
+//    calibration_loop();
+    loop();
   }
   return 0;
 }

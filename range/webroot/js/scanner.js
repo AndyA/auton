@@ -18,7 +18,8 @@ $(function() {
   var opt = {
     zoom: 5,
     normalise: false,
-    clip: 70
+    clip: 70,
+    adjust: 0.13,
   };
 
   function range_to_distance(r, s) {
@@ -48,6 +49,7 @@ $(function() {
 
   function plot_orbit(elt, data, idx, channels, opt) {
     var ctx = elt.getContext('2d');
+
     ctx.save();
     ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -94,7 +96,8 @@ $(function() {
         var ts = series[dp][0];
         var d = points[ds][dp] * scale[ds];
         if (d >= 0) {
-          var a = 2 * Math.PI * ts / set.duration + ps[ds];
+          var adj = 2 * Math.PI * opt.adjust + Math.PI;
+          var a = 2 * Math.PI * ts / set.duration + ps[ds] - adj;
           var x = Math.sin(a) * d;
           var y = Math.cos(a) * d;
           if (dp == 0) ctx.moveTo(x, y);
@@ -107,6 +110,14 @@ $(function() {
       ctx.fill();
       ctx.stroke();
     }
+
+    //    var a = 2 * Math.PI * 0.13;
+    //    ctx.beginPath();
+    //    ctx.moveTo(0, 0);
+    //    ctx.lineTo(Math.sin(a) * opt.clip, Math.cos(a) * opt.clip);
+    //    ctx.strokeStyle = 'blue';
+    //    ctx.lineWidth = 1;
+    //    ctx.stroke();
     ctx.restore();
   }
 
@@ -168,7 +179,6 @@ $(function() {
 
   function get_channels() {
     var c = [];
-    console.log("get_channels()");
     $('#channels input:checked').each(function() {
       c.push(this.id.substr(-1));
     });

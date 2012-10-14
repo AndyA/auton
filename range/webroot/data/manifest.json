@@ -4,8 +4,12 @@
       "url" : "data/wall-and-hat.json"
    },
    {
-      "desc" : "Calibration run",
+      "desc" : "Calibration run (point)",
       "url" : "data/calibration.json"
+   },
+   {
+      "desc" : "Calibration run 2 (point, wall)",
+      "url" : "data/calibration2.json"
    },
    {
       "desc" : "Temporary Scan",
