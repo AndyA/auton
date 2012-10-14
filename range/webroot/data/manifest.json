@@ -8,6 +8,10 @@
       "url" : "data/calibration.json"
    },
    {
+      "desc" : "Temporary Scan",
+      "url" : "data/temp.json"
+   },
+   {
       "desc" : "Variable speed",
       "url" : "data/varispeed.json"
    },

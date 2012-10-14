@@ -12,7 +12,7 @@ my ( $fh, $in ) = @ARGV
  }
  : ( \*STDIN, 'standard input' );
 
-my @TYPE = qw( QT_RANGE QT_INDEX );
+my @TYPE = qw( QT_RANGE QT_INDEX QT_SPEED );
 
 my %DECODE = (
   QT_RANGE => sub {
@@ -27,6 +27,17 @@ my %DECODE = (
   QT_INDEX => sub {
     return {};
   },
+  QT_SPEED => sub {
+    my $buf = shift;
+    my $speed = unpack 'C', $buf;
+    return { speed => $speed, };
+  },
+);
+
+my %SENSOR = (
+  a => 5461,
+  b => -17,
+  k => 2
 );
 
 my %LT = ();
@@ -40,6 +51,10 @@ while () {
   my $buf = readbytes( $fh, $len );
   my ( $ts, $type ) = unpack 'VC', $buf;
   my $tn = $TYPE[$type];
+  unless (defined $tn) {
+    print "Bad type: $type\n";
+    next;
+  }
   my $last = defined $LT{$tn} ? sprintf '(%dms)', $ts - $LT{$tn} : '';
   $LT{$tn} = $ts;
   my $rec = $DECODE{$tn}->( substr $buf, 5 );
@@ -47,7 +62,11 @@ while () {
    map { "$_=$rec->{$_}" } sort keys %$rec;
 }
 
-sub adc_to_range { 65 * ( $_[0] * 0.0048828125 )**-1.10 }
+sub adc_to_range {
+  my $r = shift;
+  return -1 if $r + $SENSOR{b} <= 0;
+  return $SENSOR{a} / ( $r + $SENSOR{b} ) - $SENSOR{k};
+}
 
 sub readbytes {
   my ( $fh, $bytes ) = @_;

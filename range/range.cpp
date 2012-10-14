@@ -91,16 +91,21 @@ static void send_event(queue_event *e) {
   Serial.write((const uint8_t *) e, sizeof(*e));
 }
 
+static void set_speed(uint16_t sp) {
+  queue_event e;
+  e.ts = millis();
+  e.type = QT_SPEED;
+  e.d.spd.speed = sp;
+  send_event(&e);
+  spin.write(sp);
+}
+
 void calibration_loop() {
   queue_event e;
   for (int sp = 88; sp <= 180; sp++) {
     uint32_t start = millis();
     uint8_t revs = 0;
-    e.ts = millis();
-    e.type = QT_SPEED;
-    e.d.spd.speed = sp;
-    send_event(&e);
-    spin.write(sp);
+    set_speed(sp);
     while (revs < 6) {
       if (millis() - start > 10000) break;
       delayMicroseconds(250);
@@ -128,8 +133,8 @@ main(void) {
   init();
   setup();
   for (;;) {
-//    calibration_loop();
-    loop();
+    calibration_loop();
+//    loop();
   }
   return 0;
 }

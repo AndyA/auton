@@ -38,7 +38,15 @@ $(function() {
     return t / c;
   }
 
-  function plot_orbit(elt, data, idx, opt) {
+  function clear_display(elt) {
+    var ctx = elt.getContext('2d');
+    ctx.save();
+    ctx.fillStyle = 'rgba(256, 255, 255, 1)';
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.restore();
+  }
+
+  function plot_orbit(elt, data, idx, channels, opt) {
     var ctx = elt.getContext('2d');
     ctx.save();
     ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
@@ -78,7 +86,8 @@ $(function() {
       for (ds = 0; ds < 3; ds++) scale[ds] = tavg / savg[ds];
     }
 
-    for (var ds = 0; ds < 3; ds++) {
+    for (var dsi = 0; dsi < channels.length; dsi++) {
+      var ds = channels[dsi];
       ctx.beginPath();
       var series = set.data[ds];
       for (var dp = 0; dp < series.length; dp++) {
@@ -101,24 +110,33 @@ $(function() {
     ctx.restore();
   }
 
+  function display() {
+    plot_orbit(scanner, dataset, curpage, get_channels(), opt);
+  }
+
+  function redisplay() {
+    clear_display(scanner);
+    display();
+  }
+
   function first() {
     pause();
     curpage = 0;
-    plot_orbit(scanner, dataset, curpage, opt);
+    display();
   }
 
   function next() {
     pause();
     if (curpage < dataset.length - 1) curpage++;
     else curpage = 0;
-    plot_orbit(scanner, dataset, curpage, opt);
+    display();
   }
 
   function prev() {
     pause();
     if (curpage > 0) curpage--;
     else curpage = dataset.length - 1;
-    plot_orbit(scanner, dataset, curpage, opt);
+    display();
   }
 
   var timer;
@@ -140,12 +158,21 @@ $(function() {
 
   function zoom_in() {
     opt.zoom *= 1.2;
-    plot_orbit(scanner, dataset, curpage, opt);
+    redisplay();
   }
 
   function zoom_out() {
     opt.zoom /= 1.2;
-    plot_orbit(scanner, dataset, curpage, opt);
+    redisplay();
+  }
+
+  function get_channels() {
+    var c = [];
+    console.log("get_channels()");
+    $('#channels input:checked').each(function() {
+      c.push(this.id.substr(-1));
+    });
+    return c;
   }
 
   function load_manifest(manifest) {
@@ -166,7 +193,7 @@ $(function() {
       $.getJSON(df, function(data) {
         curpage = 0;
         dataset = data;
-        plot_orbit(scanner, dataset, curpage, opt);
+        display();
       });
     });
   }
@@ -178,6 +205,8 @@ $(function() {
   $('#pause').click(pause);
   $('#in').click(zoom_in);
   $('#out').click(zoom_out);
+
+  $('#channels input').change(redisplay);
 
   load_manifest(MANIFEST);
 });

@@ -4,8 +4,18 @@ body {
 
 #transport {
   background: black;
+  color: white;
   margin: 1em;
   padding: 1em;
+}
+
+#channels {
+  margin: 0.2em 1em;
+  display: inline;
+}
+
+#channels input {
+  margin: 0.2em 0.5em;
 }
 
 .button a {
@@ -21,8 +31,8 @@ body {
 }
 
 #display, #picker {
-  float: left;
   display: inline;
+  float: left;
 }
 
 #picker {
