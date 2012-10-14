@@ -63,7 +63,7 @@ $(function() {
     var st = ['rgba(255, 0, 255, 0.2)', 'rgba(255, 255, 0, 0.2)', 'rgba(0, 255, 255, 0.2)'];
 
     ctx.fillStyle = 'black';
-    ctx.fillRect(-4, -5, 8, 10);
+    ctx.fillRect(-6, -8, 12, 16);
 
     ctx.lineWidth = 0.3;
     ctx.lineJoin = 'round';
