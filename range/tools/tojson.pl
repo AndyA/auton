@@ -14,7 +14,7 @@ my ( $fh, $in ) = @ARGV
  }
  : ( \*STDIN, 'standard input' );
 
-my @TYPE = qw( QT_RANGE QT_INDEX );
+my @TYPE = qw( QT_RANGE QT_INDEX QT_SPEED );
 
 my ( @ds, @orbit, $last_ts );
 while () {

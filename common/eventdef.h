@@ -9,24 +9,28 @@
 extern "C" {
 #endif
 
-enum {
-  QT_RANGE,
-  QT_INDEX
-};
+  enum {
+    QT_RANGE,
+    QT_INDEX,
+    QT_SPEED
+  };
 
-struct event {
-  uint32_t ts;
-  uint8_t type;
-  union {
-    struct {
-      uint16_t r;
-      uint8_t c;
-    } rf;
-    struct {
-      /* empty */
-    } idx;
-  } d;
-};
+  struct event {
+    uint32_t ts;
+    uint8_t type;
+    union {
+      struct {
+        uint16_t r;
+        uint8_t c;
+      } rf;
+      struct {
+        /* empty */
+      } idx;
+      struct {
+        uint16_t speed;
+      } spd;
+    } d;
+  };
 
 #ifdef __cplusplus
 }

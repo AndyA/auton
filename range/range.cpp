@@ -76,8 +76,8 @@ void setup() {
   pinMode(IDX, INPUT);
 
   spin.attach(SPIN);
-//  spin.write(88);
-  spin.write(97);
+  spin.write(88);
+//  spin.write(97);
 
   attachInterrupt(0, index_int, FALLING);
   setup_timer();
@@ -85,16 +85,38 @@ void setup() {
   queue_empty(&q);
 }
 
+static void send_event(queue_event *e) {
+  Serial.write("E");
+  Serial.write(sizeof(*e));
+  Serial.write((const uint8_t *) e, sizeof(*e));
+}
+
+void calibration_loop() {
+  queue_event e;
+  for (int sp = 88; sp <= 180; sp++) {
+    uint32_t start = millis();
+    uint8_t revs = 0;
+    e.ts = millis();
+    e.type = QT_SPEED;
+    e.d.spd.speed = sp;
+    send_event(&e);
+    spin.write(sp);
+    while (revs < 6) {
+      if (millis() - start > 10000) break;
+      delayMicroseconds(250);
+      if (queue_deque(&q, &e)) {
+        send_event(&e);
+        if (e.type == QT_INDEX) revs++;
+      }
+    }
+  }
+}
+
 void loop() {
   queue_event e;
 
-  digitalWrite(LED, digitalRead(IDX) ? LOW : HIGH);
-
-  if (queue_deque(&q, &e)) {
-    Serial.write("E");
-    Serial.write(sizeof(e));
-    Serial.write((const uint8_t *) &e, sizeof(e));
-  }
+  if (queue_deque(&q, &e))
+    send_event(&e);
 
   // queue_deque disables interrupts - so we need to make sure it
   // isn't called all the time.
@@ -106,6 +128,7 @@ main(void) {
   init();
   setup();
   for (;;) {
+//    calibration_loop();
     loop();
   }
   return 0;

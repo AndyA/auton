@@ -4,6 +4,10 @@
       "url" : "data/wall-and-hat.json"
    },
    {
+      "desc" : "Calibration run",
+      "url" : "data/calibration.json"
+   },
+   {
       "desc" : "Variable speed",
       "url" : "data/varispeed.json"
    },
